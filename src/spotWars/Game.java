@@ -16,42 +16,42 @@ public class Game extends Applet implements Runnable, MouseListener{
 	private World world3;
 	private World world4;
 	private World world5;
-	
+
 	private Image img;
 	private Graphics doubleG;
-	
+
 	// Number of milliseconds that must pass to send a tick
-	public static final int gameSpeed = 50;
+	public static final int gameSpeed = 200;
 	public static final long startTime = Calendar.getInstance().getTimeInMillis();
 	public static final boolean showLabels = true;
 	private int ticks;
-	
+
 	private static final long serialVersionUID = 2009818433704815839L;
 
 	public void init(){
 		setSize(800, 600);
 	}
-	
+
 	public void start(){
 		this.world1 = new World(new Point(10, 10));
 		this.world2 = new World(new Point(400, 300));
 		this.world3 = new World(new Point(200, 500));
 		this.world4 = new World(new Point(100, 200));
 		this.world5 = new World(new Point(600, 400));
-		
+
 		addMouseListener(this);
 		Thread thread = new Thread(this);
 		thread.start();
 	}
-	
+
 	public void stop(){
-		
+
 	}
-	
+
 	public void destroy(){
-		
+
 	}
-	
+
 	@Override
 	public void update(Graphics g) {
 		// Update each world
@@ -61,29 +61,34 @@ public class Game extends Applet implements Runnable, MouseListener{
 		for(World w : World.worlds){
 			w.update(ticks);
 		}
-		
+
 		// Set up double buffering
 		if(img == null){
 			img = createImage(this.getSize().width, this.getSize().height);
 			doubleG = img.getGraphics();
 		}
-		
+
 		doubleG.setColor(getBackground());
 		doubleG.fillRect(0, 0, this.getSize().width, this.getSize().height);
-		
+
 		doubleG.setColor(getForeground());
 		paint(doubleG);
-		
+
 		g.drawImage(img,0,0,this);
 	}
-	
+
 	public void paint (Graphics g)
 	{
-		// Loop through painting each world
+		// Loop through painting layer 1 of each world
 		for(World w : World.worlds){
-			w.paint(g);
+			w.paintL1(g);
 		}
-		
+
+		// Loop through painting layer 2 of each world
+		for(World w : World.worlds){
+			w.paintL2(g);
+		}
+
 	}
 
 	@Override
@@ -112,14 +117,14 @@ public class Game extends Applet implements Runnable, MouseListener{
 		// click even x, y coordinates
 		int ex = e.getX();
 		int ey = e.getY();
-		
+
 		// Loop through the worlds to see if they were clicked on
 		for(World w : World.worlds){
 			wx = w.getCoords().x;
 			wy = w.getCoords().y;
 			height = (int)w.getDiameter();
 			width = (int)w.getDiameter();
-			
+
 			if(ex > wx && ex < wx+width){
 				if(ey > wy && ey < wy+height){
 					// if it was clicked on, call it's clicked method
@@ -127,7 +132,7 @@ public class Game extends Applet implements Runnable, MouseListener{
 				}
 			}
 		}
-		
+
 		// Loop through the world infos to see if they were clicked on
 		for(WorldInfo i : WorldInfo.worldInfos){
 			if(i.isOpen()){
@@ -144,19 +149,19 @@ public class Game extends Applet implements Runnable, MouseListener{
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

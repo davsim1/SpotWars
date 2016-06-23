@@ -16,12 +16,17 @@ public class Player {
 	
 	// Constructors
 	public Player(){
-		this.name = "Player";
 		float hue = ((GameColor.PLAYERSTART.h + Player.players.size() * 140) % 360) / 360 ;
 		this.color = new Color(Color.HSBtoRGB(hue, GameColor.PLAYERSTART.s, GameColor.PLAYERSTART.l));
 		this.startingWorld = null;
 		
 		Player.players.add(this);
+		this.name = "P" + (players.size());
+	}
+	
+	public Player(World startingWorld){
+		this();
+		this.startingWorld = startingWorld;
 	}
 	
 	public Player(String name, World startingWorld) {
