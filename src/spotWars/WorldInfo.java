@@ -53,12 +53,27 @@ public class WorldInfo {
 		this();
 		this.thisWorld = world;
 
-		// Set dimensions and coordinates
+		// Set dimensions
 		this.width = thisWorld.diameter;
 		this.height = thisWorld.diameter * 0.61;
-		this.coords.x = (int)(thisWorld.coords.x + thisWorld.diameter);
-		this.coords.y = (int)(thisWorld.coords.y + thisWorld.diameter);
-
+		
+		// Set coordinates
+		// potential x, y
+		int px = (int)(thisWorld.coords.x + thisWorld.diameter);
+		int py = (int)(thisWorld.coords.y + thisWorld.diameter);
+		
+		// Set coordinates making sure it won't appear off screen
+		if(px + this.getWidth() >= Game.width){
+			this.coords.x = (int)(thisWorld.coords.x - thisWorld.getDiameter());
+		} else {
+			this.coords.x = px;
+		}
+		
+		if(py + this.getHeight() >= Game.height){
+			this.coords.y = (int)(thisWorld.coords.y - this.getHeight());
+		} else {
+			this.coords.y = py;
+		}
 		this.buttonWidth = (int)((width - borderSize*3)/3);
 		this.buttonHeight = (int)((height - borderSize*2));
 		this.buttonCoords1 = new Point(coords.x + borderSize, coords.y + borderSize);

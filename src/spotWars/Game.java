@@ -16,6 +16,7 @@ public class Game extends Applet implements Runnable, MouseListener{
 	private World world3;
 	private World world4;
 	private World world5;
+	private World world6;
 
 	private Image img;
 	private Graphics doubleG;
@@ -24,21 +25,26 @@ public class Game extends Applet implements Runnable, MouseListener{
 	public static final int gameSpeed = 200;
 	public static final long startTime = Calendar.getInstance().getTimeInMillis();
 	public static final boolean showLabels = true;
+	public static final int width = 800;
+	public static final int height = 600;
 	private int ticks;
 
 	private static final long serialVersionUID = 2009818433704815839L;
 
 	public void init(){
-		setSize(800, 600);
+		setSize(Game.width, Game.height);
 	}
 
 	public void start(){
-		this.world1 = new World(new Point(10, 10));
-		this.world2 = new World(new Point(400, 300));
-		this.world3 = new World(new Point(200, 500));
-		this.world4 = new World(new Point(100, 200));
-		this.world5 = new World(new Point(600, 400));
-
+		int radius = (int)World.startDiameter/2;
+		int diameter = (int)World.startDiameter;
+		this.world1 = new World(new Point(10, this.getHeight()/2 - radius));
+		this.world2 = new World(new Point(this.getWidth()/4 + diameter, this.getHeight()/3 - radius));
+		this.world3 = new World(new Point(this.getWidth()/4 + diameter, 2*this.getHeight()/3 - radius));
+		this.world4 = new World(new Point(this.getWidth()/2 + diameter, this.getHeight()/3 - radius));
+		this.world5 = new World(new Point(this.getWidth()/2 + diameter, 2*this.getHeight()/3 - radius));
+		this.world6 = new World(new Point(this.getWidth() - diameter - 10, this.getHeight()/2 - radius));
+		
 		addMouseListener(this);
 		Thread thread = new Thread(this);
 		thread.start();
