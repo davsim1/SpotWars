@@ -1,3 +1,6 @@
+// David Simmons (GitHub: davsim1)
+// Date: 7/8/2014
+// TODO: Win status
 package spotWars;
 
 import java.applet.*;
@@ -19,12 +22,14 @@ public class Game extends Applet implements Runnable, MouseListener{
 	private World world4;
 	private World world5;
 	private World world6;
+	private World world7;
+	private World world8;
 
 	private Image img;
 	private Graphics doubleG;
 
 	// Number of milliseconds that must pass to send a tick
-	public static final int gameSpeed = 200;
+	public static final int gameSpeed = 300;
 	public static final long startTime = Calendar.getInstance().getTimeInMillis();
 	public static final boolean showLabels = true;
 	public static final int width = 800;
@@ -47,7 +52,9 @@ public class Game extends Applet implements Runnable, MouseListener{
 		this.world3 = new World(new Point(this.getWidth()/4 + diameter, 2*this.getHeight()/3 - radius));
 		this.world4 = new World(new Point(this.getWidth()/2 + diameter, this.getHeight()/3 - radius));
 		this.world5 = new World(new Point(this.getWidth()/2 + diameter, 2*this.getHeight()/3 - radius));
-		this.world6 = new World(new Point(this.getWidth() - diameter - 10, this.getHeight()/2 - radius), p2);
+		this.world6 = new World(new Point(this.getWidth()/4 + diameter , 10));
+		this.world7 = new World(new Point(this.getWidth()/2 + diameter , this.getHeight() - diameter - 10));
+		this.world8 = new World(new Point(this.getWidth() - diameter - 10, this.getHeight()/2 - radius), p2);
 		
 		addMouseListener(this);
 		Thread thread = new Thread(this);

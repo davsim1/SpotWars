@@ -7,6 +7,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+//David Simmons (GitHub: davsim1)
+//Date: 7/8/2014
 import java.awt.List;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -31,9 +33,10 @@ public class World {
 	protected int previousTicks;
 	protected Point center;
 	protected boolean transferring;
-	protected World transferringTo;
+	protected LinkedList<World> transferringTo;
 	protected boolean receivingTransfer;
-	protected World receivingTransferFrom;
+	protected LinkedList<World> receivingTransferFrom;
+	protected double range;
 
 	public static LinkedList<World> worlds = new LinkedList<World>();
 	public static final double maxPower = 100;
@@ -81,68 +84,65 @@ public class World {
 		this.mode = WorldMode.NEUTRAL;
 		this.selected = false;
 		this.transferring = false;
-		this.transferringTo = null;
+		this.transferringTo = new LinkedList<World>();
 		this.receivingTransfer = false;
-		this.receivingTransferFrom = null;
+		this.receivingTransferFrom = new LinkedList<World>();
 	}
 
 	public void update(int ticks){
 		if(this.getMode() != WorldMode.NEUTRAL){
-			/*
-			if(this.isBeingAttacked()){
-				// Being attacked
-				// CASES:    		attackee - power per tick
-				 //  red v red   	1 
-				//   red v green		1
-				//   red v blue		.5
-				//   red v gray		0
-				 //  
-				 //  green v red		0
-				 //  green v green	0
-				 //  green v blue	0 
-				 //  green v gray	1
-				 //  
-				 // blue v red		.5
-				 //  blue v green	.5
-				  // blue v blue		.25
-				  // blue v gray		0
-
-
-				this.setPower(this.getPower() - (ticks - this.previousTicks));
-			} else if(this.isAttacking()) {
-				// Decrease power level while attacking, but not to 0
-				if(this.getPower() - (ticks - this.previousTicks) > 0){
-					this.setPower(this.getPower() - (ticks - this.previousTicks));
-				} else {
-					// Cancel attack when this runs out of power
-					this.getAttackingWhom().setBeingAttacked(false);
-					this.getAttackingWhom().setAttackedBy(null);
-					this.setAttacking(false);
-					this.setAttackingWhom(null);
-				}
-			} else {
-				// Increase power by 1 for each tick while not being attacked
-				this.setPower(this.getPower() + (ticks - this.previousTicks));
-			}
-			 */
-
+			// Update range
+			this.setRange(this.getDiameter() * this.getPower() / 5);
+			
+			// Perform each attack or transfer
 			if(this.isAttacking()){
 				for(World victim : this.getAttackingWhom()){
 					World.attack(this, victim, ticks);
 				}
-			} else if(!this.isBeingAttacked()){
+			}
+			if(this.isTransferring()){
+				for(World taker : transferringTo){
+					World.transfer(this, taker, ticks);
+				}
+				
+			}
+			if(!this.isBeingAttacked() && !this.isAttacking() && !this.isTransferring()){
 				// Increase power by 1 for each tick while not being attacked and not attacking
 				this.setPower(this.getPower() + (ticks - this.previousTicks));
 			}
 
-			if(this.isTransferring()){
-				World.transfer(this, this.transferringTo, ticks);
+			// If attacking, cancel attack when power reaches 1
+			if(this.isAttacking()){
+				if(this.getPower() <= 1){
+					int size = this.getAttackingWhom().size();
+					for(int i = 0; i < size; i++){
+						World.cancelAttack(this, this.getAttackingWhom().get(0));
+					}
+				}
 			}
+
+			// If receiving transfer, cancel transfer when power reaches max
+			if(this.isReceivingTransfer()){
+				if(this.getPower() >= World.maxTransferPower){
+					int size = this.getReceivingTransferFrom().size();
+					for(int i = 0; i < size; i++){
+						World.cancelTransfer(this.getReceivingTransferFrom().get(0), this);
+					}
+				}
+			}
+
+			// If giving transfer, cancel when power reaches 1
+			if(this.isTransferring()){
+				if(this.getPower() <= 1){
+					int size = this.getTransferringTo().size();
+					for(int i = 0; i < size; i++){
+						World.cancelTransfer(this, this.getTransferringTo().get(0));
+					}
+				}
+			}
+			
 		}
-
-		// Update color (update saturation based off of power)
-		this.setColor(new Color(Color.HSBtoRGB(this.getMode().getColor().h, (float)(this.power/World.maxPower), this.getMode().getColor().l)));
-
+	
 		// If being attacked, cancel attack when power reaches 0 and reset world
 		if(this.isBeingAttacked()){
 			if(this.getPower() <= 0){
@@ -170,28 +170,8 @@ public class World {
 			}
 		}
 
-		// If attacking, cancel attack when power reaches 1
-		if(this.isAttacking()){
-			if(this.getPower() <= 1){
-				for(World victim : this.getAttackingWhom()){
-					World.cancelAttack(this, victim);
-				}
-			}
-		}
-
-		// If receiving transfer, cancel transfer when power reaches max
-		if(this.isReceivingTransfer()){
-			if(this.getPower() >= World.maxTransferPower){
-				World.cancelTransfer(this.getReceivingTransferFrom(), this);
-			}
-		}
-
-		// If giving transfer, cancel when power reaches 1
-		if(this.isTransferring()){
-			if(this.getPower() <= 1){
-				World.cancelTransfer(this, this.getTransferringTo());
-			}
-		}
+		// Update color (update saturation based off of power)
+		this.setColor(new Color(Color.HSBtoRGB(this.getMode().getColor().h, (float)(this.power/World.maxPower), this.getMode().getColor().l)));
 
 		// Crucially set current ticks to previous ticks for the next time
 		this.previousTicks = ticks;
@@ -250,7 +230,7 @@ public class World {
 		victim.setAttackedBy(null);
 		attacker.setAttacking(false);
 		attacker.setAttackingWhom(null);
-		*/
+		 */
 		// Take victim out of attacker's list
 		if(attacker.getAttackingWhom().contains(victim)){
 			if(!attacker.getAttackingWhom().remove(victim))
@@ -263,28 +243,54 @@ public class World {
 		// Take attacker out of the victim's list
 		if(victim.getAttackedBy().contains(attacker)){
 			if(!victim.getAttackedBy().remove(attacker))
-			System.out.println("error1");
+				System.out.println("error1");
 		}
 		if(victim.getAttackedBy().isEmpty()){
 			victim.setBeingAttacked(false);
 		}
-		
+
 	}
 
 	public static void initializeTransfer(World giver, World taker){
-		if(giver.getOwner() == taker.getOwner()){
-		giver.setTransferring(true);
-		giver.setTransferringTo(taker);
-		taker.setReceivingTransfer(true);
-		taker.setReceivingTransferFrom(giver);
+		if(giver.getMode() != WorldMode.NEUTRAL && taker.getMode() != WorldMode.NEUTRAL){
+			if(giver.getOwner() == taker.getOwner()){
+				if(giver.getMode() == taker.getMode()){
+					if(giver.getTransferringTo() == null || !giver.getTransferringTo().contains(taker)){
+						giver.setTransferring(true);
+						giver.getTransferringTo().add(taker);
+						taker.setReceivingTransfer(true);
+						taker.getReceivingTransferFrom().add(giver);
+					}
+				}
+			}
 		}
 	}
 
 	public static void cancelTransfer(World giver, World taker){
+		/*
 		giver.setTransferring(false);
 		giver.setTransferringTo(null);
 		taker.setReceivingTransfer(false);
 		taker.setReceivingTransferFrom(null);
+		 */
+		// Take taker out of giver's list
+		if(giver.getTransferringTo().contains(taker)){
+			if(!giver.getTransferringTo().remove(taker))
+				System.out.println("error2");
+		}
+		// If that emptied the giver's list, set giver to not transferring
+		if(giver.getTransferringTo().isEmpty()){
+			giver.setTransferring(false);
+		}
+		// Take giver out of taker's list
+		if(taker.getReceivingTransferFrom().contains(giver)){
+			if(!taker.getReceivingTransferFrom().remove(giver))
+				System.out.println("error2");
+		}
+		// If that emptied the taker's list, set the taker to not receiving transfer
+		if(taker.getReceivingTransferFrom().isEmpty()){
+			taker.setReceivingTransfer(false);
+		}
 	}
 
 	public void paintL1(Graphics g){
@@ -304,7 +310,9 @@ public class World {
 		if(this.isTransferring()){
 			g2.setColor(this.getColor());
 			g2.setStroke(new BasicStroke(7));
-			g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, getTransferringTo().getCenter().x, getTransferringTo().getCenter().y));
+			for(World taker : this.getTransferringTo()){
+				g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, taker.getCenter().x, taker.getCenter().y));
+			}
 			g2.setStroke(new BasicStroke(1));
 		}
 
@@ -347,6 +355,13 @@ public class World {
 			// Print mode letter for the color blind
 			g.drawString(this.getMode().getLabel(), (int)(this.getCoords().x + 0.4 * this.getDiameter()), (int)(this.getCoords().y + 0.9 * this.getDiameter()));
 		}
+		
+		// Paint range indicator
+		if(this.isSelected()){
+		g.setColor(this.getOwner().getColor());
+		g.drawOval((int)(this.getCenter().x - this.getRange()/2), (int)(this.getCenter().y - this.getRange()/2), (int)this.getRange(), (int)this.getRange());
+		}
+
 	}
 
 	public void clicked(MouseEvent e){
@@ -363,20 +378,18 @@ public class World {
 		}
 
 		if(anotherSelected){
-			if(selectedWorld.isAttacking()){
-				if(selectedWorld.getAttackingWhom().contains(this)){
-					// Cancel attack
-					World.cancelAttack(selectedWorld, this);
-				}
+			if(selectedWorld.isAttacking() && selectedWorld.getAttackingWhom().contains(this)){
+				// Cancel attack against this
+				World.cancelAttack(selectedWorld, this);
 			} else {
 				// Attack with this as the victim
 				World.initializeAttack(selectedWorld, this); // THIS IS PREVENTING MULTI ATTACK BECAUSE OF CONDITIONAL (ONLY HAPPENS IF SELECTED IS NOT ATTACKING)
 			}
-			if(selectedWorld.isTransferring()){
-				if(selectedWorld.getTransferringTo() == this){
-					World.cancelTransfer(selectedWorld, this);
-				}
+			if(selectedWorld.isTransferring() && selectedWorld.getTransferringTo().contains(this)){
+				// Cancel transfer to this
+				World.cancelTransfer(selectedWorld, this);
 			} else {
+				// Start transfer to this
 				World.initializeTransfer(selectedWorld, this);
 			}
 			//if(selectedWorld.getTransferringTo().contains(this)){
@@ -508,6 +521,7 @@ public class World {
 
 
 	public Point getCenter() {
+		this.center = new Point((int)(this.coords.x + this.diameter/2), (int)(this.coords.y + this.diameter/2));
 		return center;
 	}
 
@@ -531,11 +545,11 @@ public class World {
 		this.transferring = transferring;
 	}
 
-	public World getTransferringTo() {
+	public LinkedList<World>  getTransferringTo() {
 		return transferringTo;
 	}
 
-	public void setTransferringTo(World transferringTo) {
+	public void setTransferringTo(LinkedList<World>  transferringTo) {
 		this.transferringTo = transferringTo;
 	}
 
@@ -547,12 +561,21 @@ public class World {
 		this.receivingTransfer = receivingTransfer;
 	}
 
-	public World getReceivingTransferFrom() {
+	public LinkedList<World> getReceivingTransferFrom() {
 		return receivingTransferFrom;
 	}
 
-	public void setReceivingTransferFrom(World receivingTransferFrom) {
+	public void setReceivingTransferFrom(LinkedList<World>  receivingTransferFrom) {
 		this.receivingTransferFrom = receivingTransferFrom;
 	}
 
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	
 }

@@ -1,3 +1,5 @@
+// David Simmons (GitHub: davsim1)
+// Date: 7/8/2014
 package spotWars;
 
 import java.awt.Color;
