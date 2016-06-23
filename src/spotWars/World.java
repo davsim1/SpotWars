@@ -22,8 +22,8 @@ public class World {
 	protected double diameter;
 	protected Color color;
 	protected boolean occupied;
-	protected World attackedBy;
-	protected World attackingWhom;
+	protected LinkedList<World> attackedBy;
+	protected LinkedList<World> attackingWhom;
 	protected Player owner;
 	protected WorldMode mode;
 	protected boolean selected;
@@ -48,7 +48,7 @@ public class World {
 		this.infoBox = null;
 		this.center = null;
 		this.resetVariables();
-		this.setOccupied(true); //Delete this line ******************************************************
+		//this.setOccupied(true); //Delete this line ******************************************************
 		// Add this new world to the list of worlds
 		World.worlds.add(this);
 	}
@@ -60,9 +60,10 @@ public class World {
 		this.center = new Point((int)(this.coords.x + this.diameter/2), (int)(this.coords.y + this.diameter/2));
 	}
 
-	public World(Point coords, int diameter){
+	public World(Point coords, Player owner){
 		this(coords);
-		this.diameter = diameter;
+		this.owner = owner;
+		this.occupied = true;
 	}
 
 	// General methods
@@ -73,9 +74,10 @@ public class World {
 		this.diameter = World.startDiameter;
 		this.color = GameColor.GRAY.getColor();
 		this.occupied = false;
-		this.attackedBy = null;
-		this.attackingWhom = null;
-		this.owner = new Player(this); // *************************************************
+		this.attackedBy = new LinkedList<World>();
+		this.attackingWhom = new LinkedList<World>();
+		//this.owner = new Player(this); // *************************************************
+		this.owner = null;
 		this.mode = WorldMode.NEUTRAL;
 		this.selected = false;
 		this.transferring = false;
@@ -125,7 +127,9 @@ public class World {
 			 */
 
 			if(this.isAttacking()){
-				World.attack(this, this.getAttackingWhom(), ticks);
+				for(World victim : this.getAttackingWhom()){
+					World.attack(this, victim, ticks);
+				}
 			} else if(!this.isBeingAttacked()){
 				// Increase power by 1 for each tick while not being attacked and not attacking
 				this.setPower(this.getPower() + (ticks - this.previousTicks));
@@ -142,10 +146,19 @@ public class World {
 		// If being attacked, cancel attack when power reaches 0 and reset world
 		if(this.isBeingAttacked()){
 			if(this.getPower() <= 0){
-				WorldMode attackerMode = this.getAttackedBy().getMode();
-				Player attackerOwner = this.getAttackedBy().getOwner();
+				// Save first World to attack this one
+				WorldMode attackerMode = this.getAttackedBy().getFirst().getMode();
+				Player attackerOwner = this.getAttackedBy().getFirst().getOwner();
 				// Cancel attack
-				World.cancelAttack(this.getAttackedBy(), this);
+				int length = this.getAttackedBy().size();
+				for(int i = 0; i < length; i++){
+					World.cancelAttack(this.getAttackedBy().get(0), this);
+				}
+				/*
+				System.out.println(this.getAttackedBy().size());
+				for(World attacker : this.getAttackedBy()){
+					World.cancelAttack(attacker, this);
+				}*/
 				// Reset and unclaim this world
 				this.resetVariables();
 				// If the attacker that just defeated this world was explorative
@@ -160,7 +173,9 @@ public class World {
 		// If attacking, cancel attack when power reaches 1
 		if(this.isAttacking()){
 			if(this.getPower() <= 1){
-				World.cancelAttack(this, this.getAttackingWhom());
+				for(World victim : this.getAttackingWhom()){
+					World.cancelAttack(this, victim);
+				}
 			}
 		}
 
@@ -220,25 +235,49 @@ public class World {
 		if(attacker.getOwner() != victim.getOwner()){
 			if(attacker.isOccupied()){
 				attacker.setAttacking(true);
-				attacker.setAttackingWhom(victim);
+				//attacker.setAttackingWhom(victim);
+				attacker.getAttackingWhom().add(victim);
 				victim.setBeingAttacked(true);
-				victim.setAttackedBy(attacker);
+				//victim.setAttackedBy(attacker);
+				victim.getAttackedBy().add(attacker);
 			}
 		}
 	}
 
 	public static void cancelAttack(World attacker, World victim){
+		/*
 		victim.setBeingAttacked(false);
 		victim.setAttackedBy(null);
 		attacker.setAttacking(false);
 		attacker.setAttackingWhom(null);
+		*/
+		// Take victim out of attacker's list
+		if(attacker.getAttackingWhom().contains(victim)){
+			if(!attacker.getAttackingWhom().remove(victim))
+				System.out.println("error1");
+		}
+		// If that emptied the attacker's list, set the attacker to not attacking
+		if(attacker.getAttackingWhom().isEmpty()){
+			attacker.setAttacking(false);
+		}
+		// Take attacker out of the victim's list
+		if(victim.getAttackedBy().contains(attacker)){
+			if(!victim.getAttackedBy().remove(attacker))
+			System.out.println("error1");
+		}
+		if(victim.getAttackedBy().isEmpty()){
+			victim.setBeingAttacked(false);
+		}
+		
 	}
 
 	public static void initializeTransfer(World giver, World taker){
+		if(giver.getOwner() == taker.getOwner()){
 		giver.setTransferring(true);
 		giver.setTransferringTo(taker);
 		taker.setReceivingTransfer(true);
 		taker.setReceivingTransferFrom(giver);
+		}
 	}
 
 	public static void cancelTransfer(World giver, World taker){
@@ -251,11 +290,13 @@ public class World {
 	public void paintL1(Graphics g){
 		Graphics2D g2 = (Graphics2D)g;
 
-		// If attacking, paint attack stream
+		// If attacking, paint attack streams
 		if(this.isAttacking()){
 			g2.setColor(this.getColor());
 			g2.setStroke(new BasicStroke(7));
-			g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, getAttackingWhom().getCenter().x, getAttackingWhom().getCenter().y));
+			for(World victim : this.getAttackingWhom()){
+				g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, victim.getCenter().x, victim.getCenter().y));
+			}
 			g2.setStroke(new BasicStroke(1));
 		}
 
@@ -273,7 +314,7 @@ public class World {
 		Graphics2D g2 = (Graphics2D)g;
 
 		// If there is an owner, print that color behind this world
-		if(this.getOwner() != null){
+		if(this.isOccupied()){
 			g2.setStroke(new BasicStroke(6));
 			g2.setColor(this.getOwner().getColor());
 			g2.drawOval(this.getCoords().x, this.getCoords().y, (int)this.getDiameter(), (int)this.getDiameter());
@@ -297,7 +338,9 @@ public class World {
 		if(Game.showLabels){
 			g.setColor(Color.BLACK);
 			// Paint player name on world
-			g.drawString(this.getOwner().getName(), (int)(this.getCoords().x + 0.35 * this.getDiameter()), (int)(this.getCoords().y + 0.25 * this.getDiameter()));
+			if(this.isOccupied()){
+				g.drawString(this.getOwner().getName(), (int)(this.getCoords().x + 0.35 * this.getDiameter()), (int)(this.getCoords().y + 0.25 * this.getDiameter()));
+			}
 			// Paint power value on the world
 			g.drawString(""+(int)power,(int)(this.getCoords().x + 0.35 * this.getDiameter()), (int)(this.getCoords().y + 0.58 * this.getDiameter()));
 
@@ -321,20 +364,31 @@ public class World {
 
 		if(anotherSelected){
 			if(selectedWorld.isAttacking()){
-				// Cancel attack
-				World.cancelAttack(selectedWorld, selectedWorld.getAttackingWhom());
+				if(selectedWorld.getAttackingWhom().contains(this)){
+					// Cancel attack
+					World.cancelAttack(selectedWorld, this);
+				}
 			} else {
 				// Attack with this as the victim
-				World.initializeAttack(selectedWorld, this);
+				World.initializeAttack(selectedWorld, this); // THIS IS PREVENTING MULTI ATTACK BECAUSE OF CONDITIONAL (ONLY HAPPENS IF SELECTED IS NOT ATTACKING)
 			}
-			if(selectedWorld.getOwner() == this.getOwner()){
+			if(selectedWorld.isTransferring()){
+				if(selectedWorld.getTransferringTo() == this){
+					World.cancelTransfer(selectedWorld, this);
+				}
+			} else {
 				World.initializeTransfer(selectedWorld, this);
 			}
+			//if(selectedWorld.getTransferringTo().contains(this)){
+			//	World.cancelTransfer(selectedWorld, this);
+			//}
 		} else {
 			// Reverse selected
-			this.selected = !this.selected;
-			// Reverse open of info box
-			this.infoBox.reverseOpen();
+			if(this.isOccupied()){
+				this.selected = !this.selected;
+				// Reverse open of info box
+				this.infoBox.reverseOpen();
+			}
 		}
 
 
@@ -403,19 +457,19 @@ public class World {
 		this.occupied = occupied;
 	}
 
-	public World getAttackedBy() {
+	public LinkedList<World> getAttackedBy() {
 		return attackedBy;
 	}
 
-	public void setAttackedBy(World attackedBy) {
+	public void setAttackedBy(LinkedList<World> attackedBy) {
 		this.attackedBy = attackedBy;
 	}
 
-	public World getAttackingWhom() {
+	public LinkedList<World> getAttackingWhom() {
 		return attackingWhom;
 	}
 
-	public void setAttackingWhom(World attackingWhom) {
+	public void setAttackingWhom(LinkedList<World> attackingWhom) {
 		this.attackingWhom = attackingWhom;
 	}
 

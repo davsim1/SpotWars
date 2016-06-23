@@ -10,7 +10,9 @@ import java.awt.event.MouseListener;
 import java.util.Calendar;
 
 public class Game extends Applet implements Runnable, MouseListener{
-
+	private Player p1;
+	private Player p2;
+	
 	private World world1;
 	private World world2;
 	private World world3;
@@ -36,14 +38,16 @@ public class Game extends Applet implements Runnable, MouseListener{
 	}
 
 	public void start(){
+		this.p1 = new Player();
+		this.p2 = new Player();
 		int radius = (int)World.startDiameter/2;
 		int diameter = (int)World.startDiameter;
-		this.world1 = new World(new Point(10, this.getHeight()/2 - radius));
+		this.world1 = new World(new Point(10, this.getHeight()/2 - radius), p1);
 		this.world2 = new World(new Point(this.getWidth()/4 + diameter, this.getHeight()/3 - radius));
 		this.world3 = new World(new Point(this.getWidth()/4 + diameter, 2*this.getHeight()/3 - radius));
 		this.world4 = new World(new Point(this.getWidth()/2 + diameter, this.getHeight()/3 - radius));
 		this.world5 = new World(new Point(this.getWidth()/2 + diameter, 2*this.getHeight()/3 - radius));
-		this.world6 = new World(new Point(this.getWidth() - diameter - 10, this.getHeight()/2 - radius));
+		this.world6 = new World(new Point(this.getWidth() - diameter - 10, this.getHeight()/2 - radius), p2);
 		
 		addMouseListener(this);
 		Thread thread = new Thread(this);

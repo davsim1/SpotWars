@@ -16,7 +16,7 @@ public class Player {
 	
 	// Constructors
 	public Player(){
-		float hue = ((GameColor.PLAYERSTART.h + Player.players.size() * 140) % 360) / 360 ;
+		float hue = ((GameColor.PLAYERSTART.h*100 + Player.players.size() * 28) % 100) / 100 ;
 		this.color = new Color(Color.HSBtoRGB(hue, GameColor.PLAYERSTART.s, GameColor.PLAYERSTART.l));
 		this.startingWorld = null;
 		
