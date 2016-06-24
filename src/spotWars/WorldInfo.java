@@ -4,7 +4,6 @@
  */
 package spotWars;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -34,10 +33,6 @@ public class WorldInfo {
 
 	// Constructors
 	public WorldInfo() {
-		String label1 = "Offensive";
-		String label2 = "Defensive";
-		String label3 = "Explorative";
-
 		this.coords = new Point(0, 0);
 		this.width = 66;
 		this.height = 41;

@@ -3,7 +3,6 @@
 package spotWars;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Player {

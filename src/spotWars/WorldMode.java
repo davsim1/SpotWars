@@ -2,8 +2,6 @@
 // Date: 7/8/2014
 package spotWars;
 
-import java.awt.Color;
-
 public enum WorldMode {
 	OFFENSIVE(1), EXPLORATIVE(2), DEFENSIVE(3), NEUTRAL(4);
 

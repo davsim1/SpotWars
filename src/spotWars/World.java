@@ -9,7 +9,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import java.awt.List;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
@@ -92,7 +91,7 @@ public class World {
 	public void update(int ticks) {
 		if (this.getMode() != WorldMode.NEUTRAL) {
 			// Update range
-			this.setRange(this.getDiameter() * this.getPower() / 5);
+			this.setRange(this.getDiameter() * this.getPower() / 10);
 
 			// Perform each attack or transfer
 			if (this.isAttacking()) {
@@ -214,7 +213,7 @@ public class World {
 	}
 
 	public static void initializeAttack(World attacker, World victim) {
-		if (attacker.getOwner() != victim.getOwner()) {
+		if (attacker.getOwner() != victim.getOwner() && attacker.canReach(victim)) {
 			if (attacker.isOccupied()) {
 				attacker.setAttacking(true);
 				// attacker.setAttackingWhom(victim);
@@ -224,6 +223,10 @@ public class World {
 				victim.getAttackedBy().add(attacker);
 			}
 		}
+	}
+	
+	public boolean canReach(World other) {
+		return other.coords.distance(this.coords) <= range;
 	}
 
 	public static void cancelAttack(World attacker, World victim) {
@@ -254,7 +257,7 @@ public class World {
 
 	public static void initializeTransfer(World giver, World taker) {
 		if (giver.getMode() != WorldMode.NEUTRAL && taker.getMode() != WorldMode.NEUTRAL) {
-			if (giver.getOwner() == taker.getOwner()) {
+			if (giver.getOwner() == taker.getOwner() && giver.canReach(taker)) {
 				if (giver.getMode() == taker.getMode()) {
 					if (giver.getTransferringTo() == null || !giver.getTransferringTo().contains(taker)) {
 						giver.setTransferring(true);
@@ -364,8 +367,8 @@ public class World {
 		// Paint range indicator
 		if (this.isSelected()) {
 			g.setColor(this.getOwner().getColor());
-			g.drawOval((int) (this.getCenter().x - this.getRange() / 2),
-					(int) (this.getCenter().y - this.getRange() / 2), (int) this.getRange(), (int) this.getRange());
+			g.drawOval((int) (this.getCenter().x - this.getRange()),
+					(int) (this.getCenter().y - this.getRange()), (int) this.getRange() * 2, (int) this.getRange() * 2);
 		}
 
 	}

@@ -208,8 +208,6 @@ public class Game extends Applet implements Runnable, MouseListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		Point loc = e.getLocationOnScreen();
 	}
 	
 	public Player getWinner() {
