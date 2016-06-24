@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 public class World {
@@ -42,6 +43,27 @@ public class World {
 	public static final double maxTransferPower = 100;
 	public static final double startDiameter = 50;
 	public static final double transferSpeed = 2;
+	public static final Comparator<World> worldStrengthComparator = new Comparator<World>() {
+		@Override
+		// Low return value means higher priority to attack
+		public int compare(World arg0, World arg1) {
+			// Compare powers
+			int comp = (int) (arg0.getPower() - arg1.getPower());
+			// If they're the same mode, prefer to attack lower power
+			if (arg0.getMode() == arg1.getMode()) {
+				return comp;
+				// If the powers are close, prefer to attack explorative to
+				// prevent exploration
+			} else if (Math.abs(comp) <= 10 && arg0.getMode() == WorldMode.EXPLORATIVE) {
+				return -1;
+				// If the powers are close, prefer to attack defensive before it
+				// gains too many points and bunkers
+			} else if (Math.abs(comp) <= 20 && arg0.getMode() == WorldMode.DEFENSIVE) {
+				return -1;
+			}
+			return comp;
+		}
+	};
 
 	// Constructors
 	public World() {
@@ -63,7 +85,7 @@ public class World {
 
 	public World(Point coords, Player owner) {
 		this(coords);
-		this.owner = owner;
+		setOwner(owner);
 		this.occupied = true;
 	}
 
@@ -79,7 +101,7 @@ public class World {
 		this.attackingWhom = new LinkedList<World>();
 		// this.owner = new Player(this); //
 		// *************************************************
-		this.owner = null;
+		setOwner(null);
 		this.mode = WorldMode.NEUTRAL;
 		this.selected = false;
 		this.transferring = false;
@@ -179,7 +201,8 @@ public class World {
 	}
 
 	public static void attack(World attacker, World victim, int ticks) {
-		if (attacker.isOccupied()) {
+		if (attacker.isOccupied() && attacker.getOwner() != victim.getOwner()) {
+			System.out.println("test");
 			int ticksPassed = (ticks - attacker.getPreviousTicks());
 			double attackMultiplier;
 			double attackStrength;
@@ -224,7 +247,7 @@ public class World {
 			}
 		}
 	}
-	
+
 	public boolean canReach(World other) {
 		return other.coords.distance(this.coords) <= range;
 	}
@@ -367,13 +390,13 @@ public class World {
 		// Paint range indicator
 		if (this.isSelected()) {
 			g.setColor(this.getOwner().getColor());
-			g.drawOval((int) (this.getCenter().x - this.getRange()),
-					(int) (this.getCenter().y - this.getRange()), (int) this.getRange() * 2, (int) this.getRange() * 2);
+			g.drawOval((int) (this.getCenter().x - this.getRange()), (int) (this.getCenter().y - this.getRange()),
+					(int) this.getRange() * 2, (int) this.getRange() * 2);
 		}
 
 	}
 
-	public void clicked(MouseEvent e, World selectedWorld) {
+	public void clicked(MouseEvent e, World selectedWorld, Player p) {
 		Boolean anotherSelected = true;
 		if (selectedWorld == null || selectedWorld == this) {
 			anotherSelected = false;
@@ -389,19 +412,23 @@ public class World {
 				// HAPPENS IF SELECTED IS NOT ATTACKING)
 				World.initializeAttack(selectedWorld, this);
 			}
-			if (selectedWorld.isTransferring() && selectedWorld.getTransferringTo().contains(this)) {
-				// Cancel transfer to this
-				World.cancelTransfer(selectedWorld, this);
-			} else {
-				// Start transfer to this
-				World.initializeTransfer(selectedWorld, this);
+			if (getOwner() == p) {
+				if (selectedWorld.isTransferring() && selectedWorld.getTransferringTo().contains(this)) {
+					// Cancel transfer to this
+					World.cancelTransfer(selectedWorld, this);
+				} else {
+					// Start transfer to this
+					World.initializeTransfer(selectedWorld, this);
+				}
 			}
 		} else {
 			// Reverse selected
-			if (this.isOccupied()) {
-				this.selected = !this.selected;
-				// Reverse open of info box
-				this.infoBox.reverseOpen();
+			if (getOwner() == p) {
+				if (this.isOccupied()) {
+					this.selected = !this.selected;
+					// Reverse open of info box
+					this.infoBox.reverseOpen();
+				}
 			}
 		}
 
@@ -491,7 +518,13 @@ public class World {
 	}
 
 	public void setOwner(Player owner) {
+		if (owner != null) {
+			owner.removeWorld(this);
+		}
 		this.owner = owner;
+		if (owner != null) {
+			owner.addWorld(this);
+		}
 	}
 
 	public WorldMode getMode() {
@@ -576,4 +609,7 @@ public class World {
 		this.range = range;
 	}
 
+	public boolean isIdle() {
+		return !isTransferring() && !isBeingAttacked() && !isAttacking();
+	}
 }

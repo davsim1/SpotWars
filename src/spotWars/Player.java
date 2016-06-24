@@ -3,6 +3,7 @@
 package spotWars;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Player {
@@ -14,6 +15,7 @@ public class Player {
 	protected int playerNum;
 
 	public static LinkedList<Player> players = new LinkedList<Player>();
+	public ArrayList<World> myWorlds = new ArrayList<World>();
 
 	// Constructors
 	public Player() {
@@ -34,6 +36,16 @@ public class Player {
 		this();
 		this.name = name;
 		this.startingWorld = startingWorld;
+	}
+
+	public void addWorld(World w) {
+		if (!myWorlds.contains(w)) {
+			myWorlds.add(w);
+		}
+	}
+	
+	public void removeWorld(World w) {
+		myWorlds.remove(w);
 	}
 
 	// Getters and Setters

@@ -28,6 +28,7 @@ TODO:
 * Randomize map generation.
 * Find a way to handle input from multiple players.
 * Make changes to make it multiplayer (currently one person controls all players).
+* Implement AI to play against.
 * Create opening, winning, and losing splash screens.
 * Allow users to change settings in a file or on opening screen.
 * Make the game accessible to play online.

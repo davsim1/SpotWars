@@ -9,12 +9,14 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 
 public class Game extends Applet implements Runnable, MouseListener {
+	// Put list of players here
 	private Player p1;
-	private Player p2;
+	private AIPlayer p2;
 
 	private LinkedList<World> worlds;
 
@@ -27,10 +29,13 @@ public class Game extends Applet implements Runnable, MouseListener {
 	public static final boolean showLabels = true;
 	public static final int width = 800;
 	public static final int height = 600;
+	// Interval for the AI to plan and make moves in ticks
+	public static final int aIUpdateRate = 1;
 	// How often to check for a win in milliseconds
 	public static final int winCheckInterval = 1000;
 	private long lastWinCheck;
 	private int ticks;
+	private int prevTicks;
 
 	private static final long serialVersionUID = 2009818433704815839L;
 
@@ -42,7 +47,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 
 	public void start() {
 		this.p1 = new Player();
-		this.p2 = new Player();
+		this.p2 = new AIPlayer(this);
 		int radius = (int) World.startDiameter / 2;
 		int diameter = (int) World.startDiameter;
 		this.lastWinCheck = Calendar.getInstance().getTimeInMillis();
@@ -81,6 +86,11 @@ public class Game extends Applet implements Runnable, MouseListener {
 		for (World w : worlds) {
 			w.update(ticks);
 		}
+		
+		if (ticks - prevTicks >= aIUpdateRate) {
+			p2.makeMoves(ticks);
+			prevTicks = ticks;
+		}
 
 		// Set up double buffering
 		if (img == null) {
@@ -99,7 +109,8 @@ public class Game extends Applet implements Runnable, MouseListener {
 		if (currentTime - lastWinCheck >= winCheckInterval) {
 			lastWinCheck = currentTime;
 			if ((winner = getWinner()) != null) {
-				g.drawString(winner.getName() + " WINS!!!", (int)(this.getSize().getWidth() *.45), (int)(this.getSize().getHeight() / 15));
+				g.drawString(winner.getName() + " WINS!!!", (int) (this.getSize().getWidth() * .45),
+						(int) (this.getSize().getHeight() / 15));
 				try {
 					Thread.sleep(10000);
 					System.exit(0);
@@ -163,12 +174,14 @@ public class Game extends Applet implements Runnable, MouseListener {
 				if (ey > wy && ey < wy + height) {
 					wasSelected = w.isSelected();
 					// if it was clicked on, call its clicked method
-					w.clicked(e, selectedWorld);
+					w.clicked(e, selectedWorld, p1);
 					// Save if it was selected or unselected
-					if (w.isSelected()) {
-						selectedWorld = w;
-					} else if (wasSelected) {
-						selectedWorld = null;
+					if (w.getOwner() == p1) {
+						if (w.isSelected()) {
+							selectedWorld = w;
+						} else if (wasSelected) {
+							selectedWorld = null;
+						}
 					}
 				}
 			}
@@ -209,7 +222,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 	}
-	
+
 	public Player getWinner() {
 		Player winner = worlds.get(0).getOwner();
 		for (World w : worlds) {
@@ -219,5 +232,17 @@ public class Game extends Applet implements Runnable, MouseListener {
 			}
 		}
 		return winner;
+	}
+	
+	public ArrayList<World> worldsInRangeOf(World origin) {
+		ArrayList<World> result = new ArrayList<World>();
+		
+		for (World w : worlds) {
+			if (origin.getCoords().distance(w.getCoords()) <= origin.range) {
+				result.add(w);
+			}
+		}
+		
+		return result;
 	}
 }
