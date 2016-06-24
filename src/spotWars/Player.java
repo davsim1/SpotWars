@@ -13,31 +13,30 @@ public class Player {
 	protected World startingWorld;
 	protected double score;
 	protected int playerNum;
-	
+
 	public static LinkedList<Player> players = new LinkedList<Player>();
-	
+
 	// Constructors
-	public Player(){
-		float hue = ((GameColor.PLAYERSTART.h*100 + Player.players.size() * 28) % 100) / 100 ;
+	public Player() {
+		float hue = ((GameColor.PLAYERSTART.h * 100 + Player.players.size() * 28) % 100) / 100;
 		this.color = new Color(Color.HSBtoRGB(hue, GameColor.PLAYERSTART.s, GameColor.PLAYERSTART.l));
 		this.startingWorld = null;
-		
+
 		Player.players.add(this);
 		this.name = "P" + (players.size());
 	}
-	
-	public Player(World startingWorld){
+
+	public Player(World startingWorld) {
 		this();
 		this.startingWorld = startingWorld;
 	}
-	
+
 	public Player(String name, World startingWorld) {
 		this();
 		this.name = name;
 		this.startingWorld = startingWorld;
 	}
 
-	
 	// Getters and Setters
 	public String getName() {
 		return name;
@@ -78,6 +77,5 @@ public class Player {
 	public void setPlayerNum(int playerNum) {
 		this.playerNum = playerNum;
 	}
-	
-	
+
 }
