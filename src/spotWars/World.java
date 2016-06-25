@@ -202,7 +202,6 @@ public class World {
 
 	public static void attack(World attacker, World victim, int ticks) {
 		if (attacker.isOccupied() && attacker.getOwner() != victim.getOwner()) {
-			System.out.println("test");
 			int ticksPassed = (ticks - attacker.getPreviousTicks());
 			double attackMultiplier;
 			double attackStrength;
@@ -518,8 +517,12 @@ public class World {
 	}
 
 	public void setOwner(Player owner) {
-		if (owner != null) {
-			owner.removeWorld(this);
+		if (owner != this.owner) {
+			this.setSelected(false);
+		}
+		
+		if (this.owner != null) {
+			this.owner.removeWorld(this);
 		}
 		this.owner = owner;
 		if (owner != null) {

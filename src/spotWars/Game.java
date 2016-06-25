@@ -30,7 +30,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 	public static final int width = 800;
 	public static final int height = 600;
 	// Interval for the AI to plan and make moves in ticks
-	public static final int aIUpdateRate = 1;
+	public static final int aIUpdateRate = 13;
 	// How often to check for a win in milliseconds
 	public static final int winCheckInterval = 1000;
 	private long lastWinCheck;
@@ -161,6 +161,12 @@ public class Game extends Applet implements Runnable, MouseListener {
 		int ex = e.getX();
 		int ey = e.getY();
 		boolean wasSelected;
+		boolean worldClicked = false;
+		
+		// TODO: change p1 for many players
+		if (selectedWorld != null && selectedWorld.getOwner() != p1) {
+			selectedWorld = null;
+		}
 
 		// Loop through the worlds to see if they were clicked on
 		// TODO: Tree or hash table to improve from O(n)
@@ -172,6 +178,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 
 			if (ex > wx && ex < wx + width) {
 				if (ey > wy && ey < wy + height) {
+					worldClicked = true;
 					wasSelected = w.isSelected();
 					// if it was clicked on, call its clicked method
 					w.clicked(e, selectedWorld, p1);
@@ -187,6 +194,10 @@ public class Game extends Applet implements Runnable, MouseListener {
 			}
 		}
 
+		if (!worldClicked && selectedWorld != null) {
+			selectedWorld.setSelected(false);
+			selectedWorld = null;
+		}
 		// Loop through the world infos to see if they were clicked on
 		// TODO: Tree or hash table to improve from O(n)
 		for (WorldInfo i : WorldInfo.worldInfos) {

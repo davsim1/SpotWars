@@ -46,6 +46,7 @@ public class AIPlayer extends Player {
 		// Continue if myWorld is not doing anything (to keep it simple)
 		if (myWorld.isIdle()) {
 			TreeSet<World> potentialVictims = new TreeSet<World>(World.worldStrengthComparator);
+			World victim = null;
 			int neutralCount = 0;
 
 			for (World w : worldsInRange) {
@@ -73,7 +74,15 @@ public class AIPlayer extends Player {
 
 			// Attack the highest priority victim
 			if (!potentialVictims.isEmpty()) {
-				World.initializeAttack(myWorld, potentialVictims.first());
+				victim = potentialVictims.first();
+				// One Offensive can't defeat a Defensive, so prefer to explore
+				// rather than attack defensive
+				if (neutralCount > 0 && victim.getMode() == WorldMode.DEFENSIVE) {
+					myWorld.setMode(WorldMode.EXPLORATIVE);
+				} else {
+					World.initializeAttack(myWorld, victim);
+				}
+
 			} else if (myWorld.getPower() == 100 && neutralCount > 0) {
 				// If there's nothing to attack but worlds to claim, change to
 				// explorative
@@ -165,8 +174,8 @@ public class AIPlayer extends Player {
 					// If only surrounded by friendlies with nothing to take in
 					// range, change to defensive (bunker)
 					myWorld.setMode(WorldMode.DEFENSIVE);
-				} else if (1.25 * explorativeCount > offensiveCount || defensiveCount > offensiveCount) {
-					// If there are explorative or defensive enemies, change to
+				} else if (1.25 * explorativeCount > offensiveCount || (defensiveCount > offensiveCount && myWorld.getPower() == 100)) {
+					// If there are explorative or defensive, change to
 					// offensive with preference for destroying explorative
 					myWorld.setMode(WorldMode.OFFENSIVE);
 				} else if (offensiveCount > 0) {
