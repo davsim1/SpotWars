@@ -9,7 +9,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 
-public class WorldInfo {
+public class WorldInfo { 
 	protected String label1;
 	protected String label2;
 	protected String label3;

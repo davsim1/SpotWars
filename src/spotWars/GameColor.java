@@ -6,7 +6,7 @@ import java.awt.Color;
 
 public enum GameColor {
 	RED(230, 103, 114), BLUE(103, 154, 230), GREEN(103, 230, 122), GRAY(180, 180, 180), PLAYERSTART(70, 230, 230); // Cyan
-
+ 
 	Color thisColor;
 	float h;
 	float s;

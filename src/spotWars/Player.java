@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Player {
-	// Variables
+	// Variables 
 	protected String name;
 	protected Color color;
 	protected World startingWorld;

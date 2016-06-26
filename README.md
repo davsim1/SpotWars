@@ -18,7 +18,7 @@ worlds to generate enough points to claim all the worlds.  When you have taken a
 of the worlds on the map, you win.  
 
 Choose a world's color by clicking on it then clicking the color.  Select a world by 
-clicking on it, and deselect it by clicking on it again.  Only one world can be selected 
+clicking on it, and deselect it by clicking off of it.  Only one world can be selected 
 at a time.  Attack another player's world (or a neutral one) by selecting a world and 
 clicking on an enemy's.  One world can attack many worlds as long as they are in range. A 
 player can transfer points between worlds of like colors by selecting a world to give 
@@ -28,7 +28,6 @@ TODO:
 * Randomize map generation.
 * Find a way to handle input from multiple players.
 * Make changes to make it multiplayer (currently one person controls all players).
-* Implement AI to play against.
 * Create opening, winning, and losing splash screens.
 * Allow users to change settings in a file or on opening screen.
 * Make the game accessible to play online.

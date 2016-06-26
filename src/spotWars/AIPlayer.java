@@ -1,12 +1,13 @@
 package spotWars;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Random;
 import java.util.TreeSet;
 
 public class AIPlayer extends Player {
 
 	protected Game game;
+	protected Random rand = new Random();
 
 	public AIPlayer(Game game) {
 		super();
@@ -42,10 +43,12 @@ public class AIPlayer extends Player {
 	// TODO: add ability for AI to change world mode
 
 	// Decide action for an offensive world
-	private void processOffensive(World myWorld, ArrayList<World> worldsInRange, int ticks) {
+	private void processOffensive(World myWorld,
+			ArrayList<World> worldsInRange, int ticks) {
 		// Continue if myWorld is not doing anything (to keep it simple)
 		if (myWorld.isIdle()) {
-			TreeSet<World> potentialVictims = new TreeSet<World>(World.worldStrengthComparator);
+			TreeSet<World> potentialVictims = new TreeSet<World>(
+					World.worldStrengthComparator);
 			World victim = null;
 			int neutralCount = 0;
 
@@ -58,7 +61,8 @@ public class AIPlayer extends Player {
 					case DEFENSIVE:
 						// Offensive avoids attacking defensive without
 						// advantage
-						if (w.getPower() <= 0.5 * myWorld.getPower() || myWorld.getPower() == 100) {
+						if (w.getPower() <= 0.5 * myWorld.getPower()
+								|| myWorld.getPower() == 100) {
 							potentialVictims.add(w);
 						}
 						break;
@@ -76,8 +80,8 @@ public class AIPlayer extends Player {
 			if (!potentialVictims.isEmpty()) {
 				victim = potentialVictims.first();
 				// One Offensive can't defeat a Defensive, so prefer to explore
-				// rather than attack defensive
-				if (neutralCount > 0 && victim.getMode() == WorldMode.DEFENSIVE) {
+				// rather than attack defensive 50% of the time
+				if (neutralCount > 0 && victim.getMode() == WorldMode.DEFENSIVE && rand.nextInt(100) < 50) {
 					myWorld.setMode(WorldMode.EXPLORATIVE);
 				} else {
 					World.initializeAttack(myWorld, victim);
@@ -92,10 +96,12 @@ public class AIPlayer extends Player {
 	}
 
 	// Decide action for an defensive world
-	private void processDefensive(World myWorld, ArrayList<World> worldsInRange, int ticks) {
+	private void processDefensive(World myWorld,
+			ArrayList<World> worldsInRange, int ticks) {
 		// Continue if myWorld is not doing anything (to keep it simple)
 		if (myWorld.isIdle()) {
-			TreeSet<World> potentialVictims = new TreeSet<World>(World.worldStrengthComparator);
+			TreeSet<World> potentialVictims = new TreeSet<World>(
+					World.worldStrengthComparator);
 			int neutralCount = 0;
 
 			for (World w : worldsInRange) {
@@ -104,7 +110,8 @@ public class AIPlayer extends Player {
 					case OFFENSIVE:
 						// Defensive avoids attacking offensive without
 						// advantage
-						if (w.getPower() <= 0.5 * myWorld.getPower() || myWorld.getPower() == 100) {
+						if (w.getPower() <= 0.5 * myWorld.getPower()
+								|| myWorld.getPower() == 100) {
 							potentialVictims.add(w);
 						}
 						break;
@@ -114,7 +121,8 @@ public class AIPlayer extends Player {
 					case EXPLORATIVE:
 						// Defensive avoids attacking explorative without
 						// advantage
-						if (w.getPower() <= 0.5 * myWorld.getPower() || myWorld.getPower() == 100) {
+						if (w.getPower() <= 0.5 * myWorld.getPower()
+								|| myWorld.getPower() == 100) {
 							potentialVictims.add(w);
 						}
 						break;
@@ -127,7 +135,13 @@ public class AIPlayer extends Player {
 
 			// Attack the highest priority victim
 			if (!potentialVictims.isEmpty()) {
-				World.initializeAttack(myWorld, potentialVictims.first());
+				if (potentialVictims.first().getMode() == WorldMode.DEFENSIVE && rand.nextInt(100) < 75) {
+					// If defensive encounters enemy defensive, give chance to
+					// change to offensive
+					myWorld.setMode(WorldMode.OFFENSIVE);
+				} else {
+					World.initializeAttack(myWorld, potentialVictims.first());
+				}
 			} else if (myWorld.getPower() == 100 && neutralCount > 0) {
 				// If there's nothing to attack but worlds to claim, change to
 				// explorative
@@ -137,10 +151,12 @@ public class AIPlayer extends Player {
 	}
 
 	// Decide action for an explorative world
-	private void processExplorative(World myWorld, ArrayList<World> worldsInRange, int ticks) {
+	private void processExplorative(World myWorld,
+			ArrayList<World> worldsInRange, int ticks) {
 		// Continue if myWorld is not doing anything (to keep it simple)
 		if (myWorld.isIdle()) {
-			TreeSet<World> potentialVictims = new TreeSet<World>(World.worldStrengthComparator);
+			TreeSet<World> potentialVictims = new TreeSet<World>(
+					World.worldStrengthComparator);
 			int offensiveCount = 0;
 			int defensiveCount = 0;
 			int explorativeCount = 0;
@@ -170,11 +186,14 @@ public class AIPlayer extends Player {
 			if (!potentialVictims.isEmpty()) {
 				World.initializeAttack(myWorld, potentialVictims.first());
 			} else {
-				if (offensiveCount + defensiveCount + explorativeCount == 0 && myWorld.getPower() == 100) {
+				if (offensiveCount + defensiveCount + explorativeCount == 0
+						&& myWorld.getPower() == 100) {
 					// If only surrounded by friendlies with nothing to take in
 					// range, change to defensive (bunker)
 					myWorld.setMode(WorldMode.DEFENSIVE);
-				} else if (1.25 * explorativeCount > offensiveCount || (defensiveCount > offensiveCount && myWorld.getPower() == 100)) {
+				} else if (1.25 * explorativeCount > offensiveCount
+						|| (defensiveCount > offensiveCount && myWorld
+								.getPower() == 100)) {
 					// If there are explorative or defensive, change to
 					// offensive with preference for destroying explorative
 					myWorld.setMode(WorldMode.OFFENSIVE);

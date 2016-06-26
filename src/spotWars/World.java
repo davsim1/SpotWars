@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 
 public class World {
-	// Variables
+	// Variables 
 	protected boolean beingAttacked;
 	protected boolean attacking;
 	protected Point coords;
@@ -52,13 +52,11 @@ public class World {
 			// If they're the same mode, prefer to attack lower power
 			if (arg0.getMode() == arg1.getMode()) {
 				return comp;
-				// If the powers are close, prefer to attack explorative to
-				// prevent exploration
+				// If the powers are close, prefer to attack explorative 
 			} else if (Math.abs(comp) <= 10 && arg0.getMode() == WorldMode.EXPLORATIVE) {
 				return -1;
-				// If the powers are close, prefer to attack defensive before it
-				// gains too many points and bunkers
-			} else if (Math.abs(comp) <= 20 && arg0.getMode() == WorldMode.DEFENSIVE) {
+				// If the powers are close, prefer to attack offensive
+			} else if (Math.abs(comp) <= 10 && arg0.getMode() == WorldMode.OFFENSIVE) {
 				return -1;
 			}
 			return comp;
@@ -535,8 +533,13 @@ public class World {
 	}
 
 	public void setMode(WorldMode mode) {
+		if (this.mode == WorldMode.NEUTRAL) {
+			this.setPower(this.getPower() / 2);
+		} else {
+			this.setPower(0);
+		}
 		this.mode = mode;
-		this.setPower(0);
+		
 	}
 
 	public boolean isSelected() {

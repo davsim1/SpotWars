@@ -4,7 +4,7 @@ package spotWars;
 
 public enum WorldMode {
 	OFFENSIVE(1), EXPLORATIVE(2), DEFENSIVE(3), NEUTRAL(4);
-
+ 
 	GameColor thisColor;
 	// These are multipliers for what is to be subtracted when attacking
 	// ex: red attacking blue
