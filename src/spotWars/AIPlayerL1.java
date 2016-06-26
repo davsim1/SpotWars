@@ -7,7 +7,7 @@ import java.util.TreeSet;
 public class AIPlayerL1 extends Player implements AIPlayer {
 
 	protected Game game;
-	protected Random rand = new Random();
+	protected Random rand = new Random(System.currentTimeMillis());
 
 	public AIPlayerL1(Game game) {
 		super();

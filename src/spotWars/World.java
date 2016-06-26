@@ -1,3 +1,4 @@
+// TODO: increase player indicator color size
 /* David Simmons (GitHub: davsim1)
  * Date: 7/8/2014
  *	A world that represents a circle on the map.
@@ -20,7 +21,6 @@ public class World {
 	protected boolean attacking;
 	protected Point coords;
 	protected double power;
-	protected double diameter;
 	protected Color color;
 	// Occupied is if this world has an owner.
 	protected boolean occupied;
@@ -40,7 +40,8 @@ public class World {
 
 	public static final double maxPower = 100;
 	public static final double maxTransferPower = 100;
-	public static final double startDiameter = 50;
+	public static final int diameter = 50;
+	public static final int radius = diameter / 2;
 	public static final double transferSpeed = 2;
 	public static final Comparator<World> enemyComparator = new Comparator<World>() {
 		@Override
@@ -109,7 +110,6 @@ public class World {
 		this.beingAttacked = false;
 		this.attacking = false;
 		this.power = Math.random() * 10 + 10;
-		this.diameter = World.startDiameter;
 		this.color = GameColor.GRAY.getColor();
 		this.occupied = false;
 		this.attackedBy = new LinkedList<World>();
@@ -190,6 +190,11 @@ public class World {
 				int length = this.getAttackedBy().size();
 				for (int i = 0; i < length; i++) {
 					World.cancelAttack(this.getAttackedBy().get(0), this);
+				}
+				// Cancel transfers
+				length = this.getReceivingTransferFrom().size();
+				for (int i = 0; i < length; i++) {
+					World.cancelAttack(this.getReceivingTransferFrom().get(0), this);
 				}
 				/*
 				 * System.out.println(this.getAttackedBy().size()); for(World
@@ -488,11 +493,7 @@ public class World {
 	public double getDiameter() {
 		return diameter;
 	}
-
-	public void setDiameter(double diameter) {
-		this.diameter = diameter;
-	}
-
+	
 	public Color getColor() {
 		return color;
 	}
@@ -540,6 +541,7 @@ public class World {
 		this.owner = owner;
 		if (owner != null) {
 			owner.addWorld(this);
+			setOccupied(true);
 		}
 	}
 
@@ -551,7 +553,7 @@ public class World {
 		if (this.mode == WorldMode.NEUTRAL) {
 			this.setPower(this.getPower() / 2);
 		} else {
-			this.setPower(0);
+			this.setPower(this.getPower() / 5);
 		}
 		this.mode = mode;
 		

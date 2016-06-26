@@ -11,7 +11,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Random;
 
 public class Game extends Applet implements Runnable, MouseListener {
 	private LinkedList<Player> players;
@@ -30,7 +32,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 	// Interval for the AI to plan and make moves in ticks
 	public static final int aIUpdateRate = 13;
 	// How often to check for a win in milliseconds
-	public static final int winCheckInterval = 1000;
+	public static final int winCheckInterval = 1500;
 
 	private long lastWinCheck;
 	private int ticks;
@@ -41,41 +43,22 @@ public class Game extends Applet implements Runnable, MouseListener {
 	private World selectedWorld;
 	private Player selectedOriginalOwner;
 
+	private Random rand = new Random(System.currentTimeMillis());
+
 	public void init() {
 		setSize(Game.width, Game.height);
 	}
 
 	public void start() {
-		int radius = (int) World.startDiameter / 2;
-		int diameter = (int) World.startDiameter;
-
 		this.players = new LinkedList<Player>();
 		players.add(new AIPlayerL1(this));
 		players.add(new AIPlayerL2(this));
 
 		this.lastWinCheck = Calendar.getInstance().getTimeInMillis();
 		this.worlds = new LinkedList<World>();
-		worlds.add(new World(new Point(10, this.getHeight() / 2 - radius),
-				players.get(0)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 4 + diameter * 1.5), this.getHeight()
-						/ 3 - radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 4 + diameter * 1.5), 2
-						* this.getHeight() / 3 - radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 2 + diameter * 1.5), this.getHeight()
-						/ 3 - radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 2 + diameter * 1.5), 2
-						* this.getHeight() / 3 - radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 4 + diameter * 1.5), 10)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 2 + diameter * 1.5), this.getHeight()
-						- diameter - 10)));
-		worlds.add(new World(new Point(this.getWidth() - diameter - 10, this
-				.getHeight() / 2 - radius), players.get(1)));
+
+		makeRandomMap(10);
+		addPlayersToMap(players);
 
 		addMouseListener(this);
 		Thread thread = new Thread(this);
@@ -280,5 +263,97 @@ public class Game extends Applet implements Runnable, MouseListener {
 		}
 
 		return result;
+	}
+
+	public void makeRandomMap(int numWorlds) {
+		Point trialLocation = new Point();
+		int infLoopGuard = 0;
+		for (int i = 0; i < numWorlds; i++) {
+			do {
+				trialLocation.x = rand.nextInt(getWidth() - 2 * World.diameter)
+						+ World.diameter;
+				trialLocation.y = rand
+						.nextInt(getHeight() - 2 * World.diameter)
+						+ World.diameter;
+				if (infLoopGuard++ > 1000) {
+					throw new IllegalStateException(
+							"infinite loop while making random map");
+				}
+			} while (tooCloseToNeighbor(trialLocation));
+
+			worlds.add(new World(new Point(trialLocation)));
+		}
+	}
+
+	public boolean tooCloseToNeighbor(Point p) {
+		for (World w : worlds) {
+			if (p.distance(w.getCoords()) < 3 * World.diameter) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void addPlayersToMap(Collection<Player> players) {
+		World trialHome;
+		int infLoopGuard = 0;
+		for (Player p : players) {
+			do {
+				trialHome = worlds.get(rand.nextInt(worlds.size()));
+				if (infLoopGuard++ > 1000) {
+					throw new IllegalStateException(
+							"infinite loop while making random map");
+				}
+			} while (trialHome.getOwner() != null || adjacentToAnotherPlayer(trialHome));
+			trialHome.setOwner(p);
+		}
+	}
+
+	public World nearest(World origin) {
+		World neighbor = null;
+		for (World w : worlds) {
+			if (neighbor == null
+					|| origin.getCoords().distance(w.getCoords()) < origin
+							.getCoords().distance(neighbor.getCoords())) {
+				neighbor = w;
+			}
+		}
+
+		return neighbor;
+	}
+	
+	public boolean adjacentToAnotherPlayer(World origin) {
+		if (worlds.size() >= 2 * players.size()) {
+			World neighbor = nearest(origin);
+			if (neighbor != null && neighbor.getOwner() != origin.getOwner()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void generateWorldSetup1() {
+		worlds.add(new World(
+				new Point(10, this.getHeight() / 2 - World.radius), players
+						.get(0)));
+		worlds.add(new World(new Point(
+				(int) (this.getWidth() / 4 + World.diameter * 1.5), this
+						.getHeight() / 3 - World.radius)));
+		worlds.add(new World(new Point(
+				(int) (this.getWidth() / 4 + World.diameter * 1.5), 2
+						* this.getHeight() / 3 - World.radius)));
+		worlds.add(new World(new Point(
+				(int) (this.getWidth() / 2 + World.diameter * 1.5), this
+						.getHeight() / 3 - World.radius)));
+		worlds.add(new World(new Point(
+				(int) (this.getWidth() / 2 + World.diameter * 1.5), 2
+						* this.getHeight() / 3 - World.radius)));
+		worlds.add(new World(new Point(
+				(int) (this.getWidth() / 4 + World.diameter * 1.5), 10)));
+		worlds.add(new World(new Point(
+				(int) (this.getWidth() / 2 + World.diameter * 1.5), this
+						.getHeight() - World.diameter - 10)));
+		worlds.add(new World(new Point(this.getWidth() - World.diameter - 10,
+				this.getHeight() / 2 - World.radius), players.get(1)));
 	}
 }

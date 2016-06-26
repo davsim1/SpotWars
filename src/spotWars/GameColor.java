@@ -11,7 +11,7 @@ public enum GameColor {
 	float h;
 	float s;
 	float l;
-
+// TODO: randomize playerstart hue (first val)
 	GameColor(int r, int g, int b) {
 		float[] HSBcolors = new float[3];
 		thisColor = new Color(r, g, b);

@@ -27,9 +27,6 @@ public class AIPlayerL2 extends AIPlayerL1 implements AIPlayer {
 		}
 	}
 
-	// TODO: add ability for AI to do more than one action per world
-	// TODO: add ability for AI to initiate transfers
-
 	// Decide action for an offensive world
 	protected void processOffensive(World myWorld,
 			ArrayList<World> worldsInRange) {
