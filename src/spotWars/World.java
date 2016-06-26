@@ -8,7 +8,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
@@ -43,7 +42,7 @@ public class World {
 	public static final double maxTransferPower = 100;
 	public static final double startDiameter = 50;
 	public static final double transferSpeed = 2;
-	public static final Comparator<World> worldStrengthComparator = new Comparator<World>() {
+	public static final Comparator<World> enemyComparator = new Comparator<World>() {
 		@Override
 		// Low return value means higher priority to attack
 		public int compare(World arg0, World arg1) {
@@ -58,6 +57,24 @@ public class World {
 				// If the powers are close, prefer to attack offensive
 			} else if (Math.abs(comp) <= 10 && arg0.getMode() == WorldMode.OFFENSIVE) {
 				return -1;
+			}
+			return comp;
+		}
+	};
+	public static final Comparator<World> allyComparator = new Comparator<World>() {
+		@Override
+		// Low return value means higher priority to transfer power to
+		public int compare(World arg0, World arg1) {
+			// Compare powers
+			int comp = (int) (arg0.getPower() - arg1.getPower());
+			// Prefer to transfer to ally that's being attacked
+			if (Math.abs(comp) < 30) {
+				if (arg0.isBeingAttacked() || arg0.isTransferring()) {
+					return -1;
+				}
+				if (arg1.isBeingAttacked() || arg0.isTransferring()) {
+					return 1;
+				}
 			}
 			return comp;
 		}
@@ -234,12 +251,10 @@ public class World {
 
 	public static void initializeAttack(World attacker, World victim) {
 		if (attacker.getOwner() != victim.getOwner() && attacker.canReach(victim)) {
-			if (attacker.isOccupied()) {
+			if (attacker.isOccupied() && !attacker.getAttackingWhom().contains(victim)) {
 				attacker.setAttacking(true);
-				// attacker.setAttackingWhom(victim);
 				attacker.getAttackingWhom().add(victim);
 				victim.setBeingAttacked(true);
-				// victim.setAttackedBy(attacker);
 				victim.getAttackedBy().add(attacker);
 			}
 		}
@@ -278,7 +293,7 @@ public class World {
 	public static void initializeTransfer(World giver, World taker) {
 		if (giver.getMode() != WorldMode.NEUTRAL && taker.getMode() != WorldMode.NEUTRAL) {
 			if (giver.getOwner() == taker.getOwner() && giver.canReach(taker)) {
-				if (giver.getMode() == taker.getMode()) {
+				if (giver.getMode() == taker.getMode() && !giver.getTransferringTo().contains(taker)) {
 					if (giver.getTransferringTo() == null || !giver.getTransferringTo().contains(taker)) {
 						giver.setTransferring(true);
 						giver.getTransferringTo().add(taker);
