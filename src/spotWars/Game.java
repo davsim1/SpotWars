@@ -1,6 +1,5 @@
 // David Simmons (GitHub: davsim1)
-// Date: 7/8/2014
-// TODO: Win status
+// Date: 6/27/2016
 package spotWars;
 
 import java.applet.*;
@@ -146,7 +145,6 @@ public class Game extends Applet implements Runnable, MouseListener {
 			try {
 				Thread.sleep(17);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				error = true;
 			}
@@ -220,19 +218,16 @@ public class Game extends Applet implements Runnable, MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
 
 	}
 

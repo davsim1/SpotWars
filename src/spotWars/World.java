@@ -1,6 +1,5 @@
-// TODO: increase player indicator color size
 /* David Simmons (GitHub: davsim1)
- * Date: 7/8/2014
+ *  Date: 6/27/2016
  *	A world that represents a circle on the map.
  */
 package spotWars;
