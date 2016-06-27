@@ -29,6 +29,27 @@ with level 2 being smarter.  Add a new Player() first if you want to play, and a
 players (AIPlayerL1 and AIPlayerL2) in the start() method of Game.java.  You can change the number 
 of starting worlds by changing makeRandomMap(int) in the start() method().  
 
+To run the game:
+In your browser:
+1. Clone the repository (all you need is SpotWars.jar and SpotWars.html).
+2. Open Internet Explorer and go to java.com. (If you don't have Java for IE)
+3. Install Java. (If you don't have Java for IE)
+4. Add "file:\\\C:\...SpotWars.html" to your Java security exceptions list (where ... is the full path 
+to the file after C:\).
+  a. Press the Windows Key.
+  b. Search for and open "Configure Java".
+  c. Go to the Security tab.
+  d. Click "Edit Site List...".
+  e. Add the fully qualified path to the html file with "file:\\\" in front.
+  f. Hit Ok.
+  g. Hit Apply.
+5. Run SpotWars.html in IE
+6. Click on prompts to allow the application to run.  
+
+OR
+
+Import the project into Eclipse and run Game.java as an applet.
+
 TODO:
 * Make more AI levels.
 * Find a way to handle input from multiple players.

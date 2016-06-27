@@ -100,7 +100,7 @@ public class World {
 		this();
 		this.coords = coords;
 		this.infoBox = new WorldInfo(this);
-		this.center = new Point((int) (this.coords.x + this.diameter / 2), (int) (this.coords.y + this.diameter / 2));
+		this.center = new Point((int) (this.coords.x + World.diameter / 2), (int) (this.coords.y + World.diameter / 2));
 	}
 
 	public World(Point coords, Player owner) {
@@ -587,7 +587,7 @@ public class World {
 	}
 
 	public Point getCenter() {
-		this.center = new Point((int) (this.coords.x + this.diameter / 2), (int) (this.coords.y + this.diameter / 2));
+		this.center = new Point((int) (this.coords.x + World.diameter / 2), (int) (this.coords.y + World.diameter / 2));
 		return center;
 	}
 

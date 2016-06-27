@@ -52,13 +52,13 @@ public class WorldInfo {
 		this.thisWorld = world;
 
 		// Set dimensions
-		this.width = thisWorld.diameter;
-		this.height = thisWorld.diameter * 0.61;
+		this.width = World.diameter;
+		this.height = World.diameter * 0.61;
 
 		// Set coordinates
 		// potential x, y
-		int px = (int) (thisWorld.coords.x + thisWorld.diameter);
-		int py = (int) (thisWorld.coords.y + thisWorld.diameter);
+		int px = (int) (thisWorld.coords.x + World.diameter);
+		int py = (int) (thisWorld.coords.y + World.diameter);
 
 		// Set coordinates making sure it won't appear off screen
 		if (px + this.getWidth() >= Game.width) {
