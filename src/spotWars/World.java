@@ -345,6 +345,8 @@ public class World {
 	public void paintL1(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 
+		// TODO: paint player colors behind attack streams
+		
 		// If attacking, paint attack streams
 		if (this.isAttacking()) {
 			g2.setColor(this.getColor());
@@ -372,6 +374,7 @@ public class World {
 	public void paintL2(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 
+		// TODO: increase player color disk
 		// If there is an owner, print that color behind this world
 		if (this.isOccupied()) {
 			g2.setStroke(new BasicStroke(6));
