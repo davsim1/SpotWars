@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 
 public class World {
-	// Variables 
+	// Variables
 	protected boolean beingAttacked;
 	protected boolean attacking;
 	protected Point coords;
@@ -43,6 +43,8 @@ public class World {
 	public static final int diameter = 50;
 	public static final int radius = diameter / 2;
 	public static final double transferSpeed = 2;
+	// A comparator to rank enemies where best to attack come towards the front
+	// of the list
 	public static final Comparator<World> enemyComparator = new Comparator<World>() {
 		@Override
 		// Low return value means higher priority to attack
@@ -52,7 +54,7 @@ public class World {
 			// If they're the same mode, prefer to attack lower power
 			if (arg0.getMode() == arg1.getMode()) {
 				return comp;
-				// If the powers are close, prefer to attack explorative 
+				// If the powers are close, prefer to attack explorative
 			} else if (Math.abs(comp) <= 10 && arg0.getMode() == WorldMode.EXPLORATIVE) {
 				return -1;
 				// If the powers are close, prefer to attack offensive
@@ -62,6 +64,9 @@ public class World {
 			return comp;
 		}
 	};
+
+	// A comparator to rank allies where best to transfer to come towards the
+	// front of the list
 	public static final Comparator<World> allyComparator = new Comparator<World>() {
 		@Override
 		// Low return value means higher priority to transfer power to
@@ -109,7 +114,7 @@ public class World {
 	protected void resetVariables() {
 		this.beingAttacked = false;
 		this.attacking = false;
-		this.power = Math.random() * 10 + 10;
+		this.power = Math.random() * 9 + 14;
 		this.color = GameColor.GRAY.getColor();
 		this.occupied = false;
 		this.attackedBy = new LinkedList<World>();
@@ -493,7 +498,7 @@ public class World {
 	public double getDiameter() {
 		return diameter;
 	}
-	
+
 	public Color getColor() {
 		return color;
 	}
@@ -531,10 +536,12 @@ public class World {
 	}
 
 	public void setOwner(Player owner) {
+		cancelAllTransfers();
+		cancelOutgoingAttacks();
 		if (owner != this.owner) {
 			this.setSelected(false);
 		}
-		
+
 		if (this.owner != null) {
 			this.owner.removeWorld(this);
 		}
@@ -556,7 +563,7 @@ public class World {
 			this.setPower(this.getPower() / 5);
 		}
 		this.mode = mode;
-		
+
 	}
 
 	public boolean isSelected() {
@@ -634,5 +641,38 @@ public class World {
 
 	public boolean isIdle() {
 		return !isTransferring() && !isBeingAttacked() && !isAttacking();
+	}
+
+	// Cancel all income and out going transfers
+	public void cancelAllTransfers() {
+		if (getTransferringTo() != null) {
+			for (World w : getTransferringTo()) {
+				World.cancelTransfer(this, w);
+			}
+		}
+		if (getReceivingTransferFrom() != null) {
+			for (World w : getReceivingTransferFrom()) {
+				World.cancelTransfer(w, this);
+			}
+		}
+	}
+
+	// Cancel all attacks
+	public void cancelAllAttacks() {
+		cancelOutgoingAttacks();
+		if (getAttackedBy() != null) {
+			for (World w : getAttackedBy()) {
+				World.cancelAttack(w, this);
+			}
+		}
+	}
+
+	// Cancel all outgoing attacks
+	public void cancelOutgoingAttacks() {
+		if (getAttackingWhom() != null) {
+			for (World w : getAttackingWhom()) {
+				World.cancelAttack(this, w);
+			}
+		}
 	}
 }

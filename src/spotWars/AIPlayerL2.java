@@ -158,6 +158,7 @@ public class AIPlayerL2 extends AIPlayerL1 implements AIPlayer {
 			ArrayList<World> worldsInRange) {
 		TreeSet<World> enemies = new TreeSet<World>(World.enemyComparator);
 		TreeSet<World> allies = new TreeSet<World>(World.allyComparator);
+		World enemy = null;
 		int offensiveCount = 0;
 		int defensiveCount = 0;
 		int explorativeCount = 0;
@@ -177,7 +178,7 @@ public class AIPlayerL2 extends AIPlayerL1 implements AIPlayer {
 				}
 				break;
 			case EXPLORATIVE:
-				if (w.getOwner() != this) {
+				if (w.getOwner() == null || w.getOwner() != this) {
 					explorativeCount++;
 				} else {
 					allies.add(w);
@@ -195,7 +196,9 @@ public class AIPlayerL2 extends AIPlayerL1 implements AIPlayer {
 		if (!enemies.isEmpty()) {
 			size = enemies.size();
 			for (int i = 0; i < Math.min(size, 3); i++) {
-				World.initializeAttack(myWorld, enemies.pollFirst());
+				if ((enemy = enemies.pollFirst()).getMode() == WorldMode.NEUTRAL) {
+					World.initializeAttack(myWorld, enemy);
+				}
 			}
 		} else {
 			if (offensiveCount + defensiveCount + explorativeCount == 0

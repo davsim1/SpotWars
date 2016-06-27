@@ -12,6 +12,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -24,15 +25,14 @@ public class Game extends Applet implements Runnable, MouseListener {
 
 	// Number of milliseconds that must pass to send a tick
 	public static final int gameSpeed = 300;
-	public static final long startTime = Calendar.getInstance()
-			.getTimeInMillis();
+	public static final long startTime = Calendar.getInstance().getTimeInMillis();
 	public static final boolean showLabels = true;
 	public static final int width = 1000;
 	public static final int height = 800;
 	// Interval for the AI to plan and make moves in ticks
 	public static final int aIUpdateRate = 13;
 	// How often to check for a win in milliseconds
-	public static final int winCheckInterval = 1500;
+	public static final int winCheckInterval = 2500;
 
 	private long lastWinCheck;
 	private int ticks;
@@ -57,7 +57,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 		this.lastWinCheck = Calendar.getInstance().getTimeInMillis();
 		this.worlds = new LinkedList<World>();
 
-		makeRandomMap(12);
+		makeRandomMap(14);
 		addPlayersToMap(players);
 
 		addMouseListener(this);
@@ -112,9 +112,8 @@ public class Game extends Applet implements Runnable, MouseListener {
 		if (currentTime - lastWinCheck >= winCheckInterval) {
 			lastWinCheck = currentTime;
 			if ((winner = getWinner()) != null) {
-				g.drawString(winner.getName() + " WINS!!!", (int) (this
-						.getSize().getWidth() * .45), (int) (this.getSize()
-						.getHeight() / 15));
+				g.drawString(winner.getName() + " WINS!!!", (int) (this.getSize().getWidth() * .45),
+						(int) (this.getSize().getHeight() / 15));
 				try {
 					Thread.sleep(10000);
 					System.exit(0);
@@ -168,8 +167,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 		boolean worldClicked = false;
 
 		// If the selected world gets taken, reset it
-		if (selectedWorld != null
-				&& selectedWorld.getOwner() != selectedOriginalOwner) {
+		if (selectedWorld != null && selectedWorld.getOwner() != selectedOriginalOwner) {
 			selectedWorld = null;
 		}
 
@@ -210,8 +208,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 		for (WorldInfo i : WorldInfo.worldInfos) {
 			if (i.isOpen()) {
 				if (ex > i.getCoords().x && ex < i.getCoords().x + i.getWidth()) {
-					if (ey > i.getCoords().y
-							&& ey < i.getCoords().y + i.getHeight()) {
+					if (ey > i.getCoords().y && ey < i.getCoords().y + i.getHeight()) {
 						// if it was clicked on, call it's clicked method
 						i.clicked(e);
 					}
@@ -242,10 +239,23 @@ public class Game extends Applet implements Runnable, MouseListener {
 	public void mouseReleased(MouseEvent e) {
 	}
 
+	public void pruneLosers() {
+		if (players != null) {
+			Iterator<Player> iter = players.iterator();
+			while (iter.hasNext()) {
+				if (iter.next().getMyWorlds().isEmpty()) {
+					iter.remove();
+				}
+			}
+		}
+	}
+
 	public Player getWinner() {
-		Player winner = worlds.get(0).getOwner();
+		pruneLosers();
+		Player winner = players.getFirst();
+		
 		for (World w : worlds) {
-			if (w.getOwner() != winner) {
+			if (w.getOwner() != null && w.getOwner() != winner) {
 				winner = null;
 				break;
 			}
@@ -270,14 +280,10 @@ public class Game extends Applet implements Runnable, MouseListener {
 		int infLoopGuard = 0;
 		for (int i = 0; i < numWorlds; i++) {
 			do {
-				trialLocation.x = rand.nextInt(getWidth() - 2 * World.diameter)
-						+ World.diameter;
-				trialLocation.y = rand
-						.nextInt(getHeight() - 2 * World.diameter)
-						+ World.diameter;
+				trialLocation.x = rand.nextInt(getWidth() - 2 * World.diameter) + World.diameter;
+				trialLocation.y = rand.nextInt(getHeight() - 2 * World.diameter) + World.diameter;
 				if (infLoopGuard++ > 1000) {
-					throw new IllegalStateException(
-							"infinite loop while making random map");
+					throw new IllegalStateException("infinite loop while making random map");
 				}
 			} while (tooCloseToNeighbor(trialLocation));
 
@@ -301,8 +307,7 @@ public class Game extends Applet implements Runnable, MouseListener {
 			do {
 				trialHome = worlds.get(rand.nextInt(worlds.size()));
 				if (infLoopGuard++ > 1000) {
-					throw new IllegalStateException(
-							"infinite loop while making random map");
+					throw new IllegalStateException("infinite loop while making random map");
 				}
 			} while (trialHome.getOwner() != null || adjacentToAnotherPlayer(trialHome));
 			trialHome.setOwner(p);
@@ -312,16 +317,15 @@ public class Game extends Applet implements Runnable, MouseListener {
 	public World nearest(World origin) {
 		World neighbor = null;
 		for (World w : worlds) {
-			if (w != origin && (neighbor == null
-					|| origin.getCoords().distance(w.getCoords()) < origin
-							.getCoords().distance(neighbor.getCoords()))) {
+			if (w != origin && (neighbor == null || origin.getCoords().distance(w.getCoords()) < origin.getCoords()
+					.distance(neighbor.getCoords()))) {
 				neighbor = w;
 			}
 		}
 
 		return neighbor;
 	}
-	
+
 	public boolean adjacentToAnotherPlayer(World origin) {
 		if (worlds.size() >= 2 * players.size()) {
 			World neighbor = nearest(origin);
@@ -333,27 +337,19 @@ public class Game extends Applet implements Runnable, MouseListener {
 	}
 
 	public void generateWorldSetup1() {
+		worlds.add(new World(new Point(10, this.getHeight() / 2 - World.radius), players.get(0)));
 		worlds.add(new World(
-				new Point(10, this.getHeight() / 2 - World.radius), players
-						.get(0)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 4 + World.diameter * 1.5), this
-						.getHeight() / 3 - World.radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 4 + World.diameter * 1.5), 2
-						* this.getHeight() / 3 - World.radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 2 + World.diameter * 1.5), this
-						.getHeight() / 3 - World.radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 2 + World.diameter * 1.5), 2
-						* this.getHeight() / 3 - World.radius)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 4 + World.diameter * 1.5), 10)));
-		worlds.add(new World(new Point(
-				(int) (this.getWidth() / 2 + World.diameter * 1.5), this
-						.getHeight() - World.diameter - 10)));
-		worlds.add(new World(new Point(this.getWidth() - World.diameter - 10,
-				this.getHeight() / 2 - World.radius), players.get(1)));
+				new Point((int) (this.getWidth() / 4 + World.diameter * 1.5), this.getHeight() / 3 - World.radius)));
+		worlds.add(new World(new Point((int) (this.getWidth() / 4 + World.diameter * 1.5),
+				2 * this.getHeight() / 3 - World.radius)));
+		worlds.add(new World(
+				new Point((int) (this.getWidth() / 2 + World.diameter * 1.5), this.getHeight() / 3 - World.radius)));
+		worlds.add(new World(new Point((int) (this.getWidth() / 2 + World.diameter * 1.5),
+				2 * this.getHeight() / 3 - World.radius)));
+		worlds.add(new World(new Point((int) (this.getWidth() / 4 + World.diameter * 1.5), 10)));
+		worlds.add(new World(
+				new Point((int) (this.getWidth() / 2 + World.diameter * 1.5), this.getHeight() - World.diameter - 10)));
+		worlds.add(new World(new Point(this.getWidth() - World.diameter - 10, this.getHeight() / 2 - World.radius),
+				players.get(1)));
 	}
 }

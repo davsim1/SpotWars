@@ -5,6 +5,7 @@ package spotWars;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class Player {
 	// Variables 
@@ -87,6 +88,10 @@ public class Player {
 
 	public void setPlayerNum(int playerNum) {
 		this.playerNum = playerNum;
+	}
+	
+	public List<World> getMyWorlds() {
+		return myWorlds;
 	}
 
 }
