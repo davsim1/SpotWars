@@ -557,6 +557,8 @@ public class World {
 	}
 
 	public void setMode(WorldMode mode) {
+		cancelAllTransfers();
+		cancelOutgoingAttacks();
 		if (this.mode == WorldMode.NEUTRAL) {
 			this.setPower(this.getPower() / 2);
 		} else {

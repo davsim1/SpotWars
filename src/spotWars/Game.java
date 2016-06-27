@@ -51,13 +51,14 @@ public class Game extends Applet implements Runnable, MouseListener {
 
 	public void start() {
 		this.players = new LinkedList<Player>();
-		players.add(new AIPlayerL1(this));
+		players.add(new Player());
 		players.add(new AIPlayerL2(this));
-
+		players.add(new AIPlayerL1(this));
+		
 		this.lastWinCheck = Calendar.getInstance().getTimeInMillis();
 		this.worlds = new LinkedList<World>();
 
-		makeRandomMap(14);
+		makeRandomMap(16);
 		addPlayersToMap(players);
 
 		addMouseListener(this);
