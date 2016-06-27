@@ -26,8 +26,8 @@ public class Game extends Applet implements Runnable, MouseListener {
 	public static final int gameSpeed = 300;
 	public static final long startTime = Calendar.getInstance().getTimeInMillis();
 	public static final boolean showLabels = true;
-	public static final int width = 1000;
-	public static final int height = 800;
+	public static final int width = 800;
+	public static final int height = 600;
 	// Interval for the AI to plan and make moves in ticks
 	public static final int aIUpdateRate = 13;
 	// How often to check for a win in milliseconds
@@ -51,13 +51,12 @@ public class Game extends Applet implements Runnable, MouseListener {
 	public void start() {
 		this.players = new LinkedList<Player>();
 		players.add(new Player());
-		players.add(new AIPlayerL2(this));
 		players.add(new AIPlayerL1(this));
 		
 		this.lastWinCheck = Calendar.getInstance().getTimeInMillis();
 		this.worlds = new LinkedList<World>();
 
-		makeRandomMap(16);
+		makeRandomMap(10);
 		addPlayersToMap(players);
 
 		addMouseListener(this);
