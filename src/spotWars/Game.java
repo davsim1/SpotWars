@@ -1,11 +1,15 @@
 // David Simmons (GitHub: davsim1)
 // Date: 6/27/2016
+// GUI example: http://www.wideskills.com/java-tutorial/java-swing-address-book
 package spotWars;
 
 import java.applet.*;
+import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.TextField;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -43,9 +47,18 @@ public class Game extends Applet implements Runnable, MouseListener {
 	private Player selectedOriginalOwner;
 
 	private Random rand = new Random(System.currentTimeMillis());
-
+	 
+	private Button okButton = new Button("OK");
+	private Checkbox humanPlayerBox = new Checkbox("Have human player? ", true);
+	private TextField numLevelOneAiField = new TextField("Number of level 1 computers ", 5);
+	private TextField numLevelTwoAiField = new TextField("Number of level 2 computers ", 5);
+	private TextField numWorldsField = new TextField("Number of worlds ", 5);
+	
 	public void init() {
 		setSize(Game.width, Game.height);
+		setLayout(null);
+		okButton.setBounds(375, 400, 50, 25);
+		add(okButton);
 	}
 
 	public void start() {
