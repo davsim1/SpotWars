@@ -347,21 +347,27 @@ public class World {
 		// TODO: paint player colors behind attack streams
 		
 		// If attacking, paint attack streams
-		if (this.isAttacking()) {
-			g2.setColor(this.getColor());
-			g2.setStroke(new BasicStroke(7));
+		if (this.isAttacking() || this.isTransferring()) {
+			
 			for (World victim : this.getAttackingWhom()) {
+				g2.setColor(this.getOwner().getColor());
+				g2.setStroke(new BasicStroke(11));
+				g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, victim.getCenter().x,
+						victim.getCenter().y));
+				
+				g2.setColor(this.getColor());
+				g2.setStroke(new BasicStroke(7));
 				g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, victim.getCenter().x,
 						victim.getCenter().y));
 			}
-			g2.setStroke(new BasicStroke(1));
-		}
-
-		// If transferring, paint attack stream
-		if (this.isTransferring()) {
-			g2.setColor(this.getColor());
-			g2.setStroke(new BasicStroke(7));
 			for (World taker : this.getTransferringTo()) {
+				g2.setColor(this.getOwner().getColor());
+				g2.setStroke(new BasicStroke(11));
+				g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, taker.getCenter().x,
+						taker.getCenter().y));
+				
+				g2.setColor(this.getColor());
+				g2.setStroke(new BasicStroke(7));
 				g2.draw(new Line2D.Float(this.getCenter().x, this.getCenter().y, taker.getCenter().x,
 						taker.getCenter().y));
 			}

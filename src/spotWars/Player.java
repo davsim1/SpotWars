@@ -14,6 +14,7 @@ public class Player {
 	protected World startingWorld;
 	protected double score;
 	protected int playerNum;
+	protected boolean isHuman;
 
 	public static LinkedList<Player> players = new LinkedList<Player>();
 	public ArrayList<World> myWorlds = new ArrayList<World>();
@@ -26,6 +27,12 @@ public class Player {
 
 		Player.players.add(this);
 		this.name = "P" + (players.size());
+		this.isHuman = false;
+	}
+	
+	public Player(Boolean isHuman) {
+		this();
+		this.isHuman = isHuman;
 	}
 
 	public Player(World startingWorld) {
