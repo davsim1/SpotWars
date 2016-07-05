@@ -25,13 +25,12 @@ player can transfer points between worlds of like colors by selecting a world to
 then clicking the world to transfer to.  
 
 There can be up to one human player (player 1) and many computer players.  There are 2 levels of computer 
-with level 2 being smarter.  Add a new Player() first if you want to play, and add/remove computer 
-players (AIPlayerL1 and AIPlayerL2) in the start() method of Game.java.  You can change the number 
-of starting worlds by changing makeRandomMap(int) in the start() method().  
+with level 2 being smarter.  Open the game to input how many worlds you want on the map, how many of 
+each level of computer, and if you want a human player (if not, you can watch the computers play).  
 
 To run the game:
 In your browser:
-1. Clone the repository (all you need is SpotWars.jar and SpotWars.html).
+1. Clone the repository or download it as a zip (all you need is SpotWars.jar and SpotWars.html).
 2. Open Internet Explorer and go to java.com. (If you don't have Java for IE)
 3. Install Java. (If you don't have Java for IE)
 4. Add "file:\\\C:\...SpotWars.html" to your Java security exceptions list (where ... is the full path 
@@ -54,8 +53,7 @@ TODO:
 * Make more AI levels.
 * Find a way to handle input from multiple players.
 * Make changes to make it multiplayer.
-* Create opening, winning, and losing splash screens.
-* Allow users to change settings in a file or on opening screen.
+* Create winning and losing splash screens.
 * Make the game accessible to play online.
 
 
