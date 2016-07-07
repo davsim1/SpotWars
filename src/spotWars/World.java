@@ -382,7 +382,7 @@ public class World {
 		// TODO: increase player color disk
 		// If there is an owner, print that color behind this world
 		if (this.isOccupied()) {
-			g2.setStroke(new BasicStroke(6));
+			g2.setStroke(new BasicStroke(7));
 			g2.setColor(this.getOwner().getColor());
 			g2.drawOval(this.getCoords().x, this.getCoords().y, (int) this.getDiameter(), (int) this.getDiameter());
 			g2.setStroke(new BasicStroke(1));

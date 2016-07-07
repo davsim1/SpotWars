@@ -36,7 +36,7 @@ public class Game extends Applet implements Runnable, MouseListener,
 	public static final int width = 1000;
 	public static final int height = 800;
 	// Interval for the AI to plan and make moves in ticks
-	public static final int aIUpdateRate = 17;
+	public static final int aIUpdateRate = 19;
 	// How often to check for a win in milliseconds
 	public static final int winCheckInterval = 2500;
 
@@ -209,6 +209,21 @@ public class Game extends Applet implements Runnable, MouseListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
 		// Continue only if first player is human (if there is still a human to
 		// play)
 		if (players != null && !players.isEmpty() && players.getFirst().isHuman) {
@@ -277,21 +292,6 @@ public class Game extends Applet implements Runnable, MouseListener,
 				}
 			}
 		}
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-
 	}
 
 	@Override

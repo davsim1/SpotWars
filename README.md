@@ -50,6 +50,8 @@ OR
 Import the project into Eclipse and run Game.java as an applet.
 
 TODO:
+* Score board.
+* Pause button.
 * Make more AI levels.
 * Find a way to handle input from multiple players.
 * Make changes to make it multiplayer.
