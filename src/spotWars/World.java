@@ -545,7 +545,7 @@ public class World {
 
 	public void setOwner(Player owner) {
 		cancelAllTransfers();
-		cancelOutgoingAttacks();
+		cancelAllAttacks();
 		if (owner != this.owner) {
 			this.setSelected(false);
 		}
