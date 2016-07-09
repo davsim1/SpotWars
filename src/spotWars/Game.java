@@ -35,14 +35,12 @@ public class Game extends Applet implements Runnable, MouseListener,
 	public static final boolean showLabels = true;
 	public static final int width = 1000;
 	public static final int height = 800;
-	// Interval for the AI to plan and make moves in ticks
-	public static final int aIUpdateRate = 19;
 	// How often to check for a win in milliseconds
 	public static final int winCheckInterval = 2500;
 
 	private long lastWinCheck;
 	private int ticks;
-	private int prevTicks;
+	private long prevCompUpdate;
 
 	private static final long serialVersionUID = 2009818433704815839L;
 
@@ -56,21 +54,27 @@ public class Game extends Applet implements Runnable, MouseListener,
 	private TextField numLevelOneAiField = new TextField("1", 5);
 	private TextField numLevelTwoAiField = new TextField("0", 5);
 	private TextField numWorldsField = new TextField("15", 5);
+	private TextField computerSpeedField = new TextField("10", 5);
 
 	private boolean startPressed = false;
 	private boolean haveHuman = true;
 	private int numLevelOneAi;
 	private int numLevelTwoAi;
 	private int numWorlds;
+	private double computerSpeed;
+
+	private boolean firstMove = true;
 
 	public void init() {
 		setSize(Game.width, Game.height);
 		setLayout(null);
+		computerSpeedField.setBounds(500, 165, 50, 25);
 		numWorldsField.setBounds(500, 215, 50, 25);
 		numLevelOneAiField.setBounds(500, 265, 50, 25);
 		numLevelTwoAiField.setBounds(500, 315, 50, 25);
 		humanPlayerBox.setBounds(500, 365, 20, 20);
 		startButton.setBounds(410, 410, 50, 25);
+		add(computerSpeedField);
 		add(numWorldsField);
 		add(numLevelOneAiField);
 		add(numLevelTwoAiField);
@@ -130,13 +134,17 @@ public class Game extends Applet implements Runnable, MouseListener,
 				w.update(ticks);
 			}
 
-			if (ticks - prevTicks >= aIUpdateRate) {
-				for (Player p : players) {
-					if (p instanceof AIPlayerL1) {
-						((AIPlayerL1) p).makeMoves();
+			if (currentTime - prevCompUpdate >= computerSpeed) {
+				if (firstMove) {
+					firstMove = false;
+				} else {
+					for (Player p : players) {
+						if (p instanceof AIPlayerL1) {
+							((AIPlayerL1) p).makeMoves();
+						}
 					}
 				}
-				prevTicks = ticks;
+				prevCompUpdate = currentTime;
 			}
 
 			// Set up double buffering
@@ -186,6 +194,7 @@ public class Game extends Applet implements Runnable, MouseListener,
 			}
 		} else {
 			// Print labels
+			g.drawString("Computer speed (seconds): ", 275, 180);
 			g.drawString("Number of worlds on map: ", 275, 230);
 			g.drawString("Number of level 1 computer players: ", 275, 280);
 			g.drawString("Number of level 2 computer players: ", 275, 330);
@@ -435,10 +444,12 @@ public class Game extends Applet implements Runnable, MouseListener,
 	public void actionPerformed(ActionEvent e) {
 		if (!startPressed && e.getSource() == startButton) {
 			startPressed = true;
+			computerSpeed = Double.parseDouble(computerSpeedField.getText()) * 1000;
 			numWorlds = Integer.parseInt(numWorldsField.getText());
 			numLevelOneAi = Integer.parseInt(numLevelOneAiField.getText());
 			numLevelTwoAi = Integer.parseInt(numLevelTwoAiField.getText());
 			haveHuman = humanPlayerBox.getState();
+			remove(computerSpeedField);
 			remove(numWorldsField);
 			remove(numLevelOneAiField);
 			remove(numLevelTwoAiField);
