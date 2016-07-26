@@ -30,10 +30,7 @@ public class Player {
 				System.out.println("test");
 				break;
 			}
-			System.out.println(currColor);
 			hue = ((GameColor.PLAYERSTART.h * 100 + (Player.currColor++) * 7) % 100);
-			
-			System.out.println(hue);
 		} while (Math.abs(hue - 99) < 14 || Math.abs(hue - 62) < 14 || Math.abs(hue - 35) < 14);
 
 		this.color = new Color(Color.HSBtoRGB(hue / 100, GameColor.PLAYERSTART.s,
