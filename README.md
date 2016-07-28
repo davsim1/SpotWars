@@ -25,24 +25,25 @@ player can transfer points between worlds of like colors by selecting a world to
 then clicking the world to transfer to.  
 
 There can be up to one human player (player 1) and many computer players.  There are 2 levels of computer 
-with level 2 being smarter.  Open the game to input how many worlds you want on the map, how many of 
+with level 2 being smarter.  Open the game to input how fast the computers should make moves (with the input 
+being the pause between computer moves in seconds), how many worlds you want on the map, how many of 
 each level of computer, and if you want a human player (if not, you can watch the computers play).  
 
-To run the game:
-In your browser:
-1. Clone the repository or download it as a zip (all you need is SpotWars.jar and SpotWars.html).
-2. Open Internet Explorer and go to java.com. (If you don't have Java for IE)
-3. Install Java. (If you don't have Java for IE)
-4. Add "file:\\\C:\...SpotWars.html" to your Java security exceptions list (where ... is the full path 
-to the file after C:\).
-  a. Press the Windows Key.
-  b. Search for and open "Configure Java".
-  c. Go to the Security tab.
-  d. Click "Edit Site List...".
-  e. Add the fully qualified path to the html file with "file:\\\" in front.
-  f. Hit Ok.
-  g. Hit Apply.
-5. Run SpotWars.html in IE
+To run the game:  
+In your browser:  
+1. Clone the repository or download it as a zip (all you need is SpotWars.jar and SpotWars.html).  
+2. Open Internet Explorer and go to java.com. (If you don't have Java for IE)  
+3. Install Java. (If you don't have Java for IE)  
+4. Add "file:\\\C:\...SpotWars.html" to your Java security exceptions list (where ... is the full path
+to the file after C:\).  
+  a. Press the Windows Key.  
+  b. Search for and open "Configure Java".  
+  c. Go to the Security tab.  
+  d. Click "Edit Site List...".  
+  e. Add the fully qualified path to the html file with "file:\\\" in front.  
+  f. Hit Ok.  
+  g. Hit Apply.  
+5. Run SpotWars.html in IE  
 6. Click on prompts to allow the application to run.  
 
 OR
